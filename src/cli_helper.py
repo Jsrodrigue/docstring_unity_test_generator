@@ -1,5 +1,5 @@
 import ast
-import astor 
+from pathlib import Path
 
 def compare_and_confirm(func_info, suggested_docstring):
     """
@@ -19,19 +19,68 @@ def compare_and_confirm(func_info, suggested_docstring):
 
 
 
-def update_docstring_in_file(file_path, func_name, new_docstring):
-    with open(file_path, "r", encoding="utf-8") as f:
-        code = f.read()
 
-    tree = ast.parse(code)
+
+
+def update_docstring(file_path, func_data):
+    """
+    Update or insert docstrings for specific functions in a Python file.
+
+    Args:
+        file_path (str | Path): Path to the Python file.
+        func_data (dict): Dictionary with:
+            - "name": function name.
+            - "docstring": new docstring (string with \n for line breaks).
+    """
+    file_path = Path(file_path)
+    lines = file_path.read_text(encoding="utf-8").splitlines()
+    tree = ast.parse("\n".join(lines))
 
     for node in ast.walk(tree):
-        if isinstance(node, ast.FunctionDef) and node.name == func_name:
-            # reemplaza o agrega docstring
-            node.body[0] = ast.Expr(value=ast.Constant(value=new_docstring))
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)) and node.name == func_data["name"]:
+            if not node.body:
+                continue  # skip empty functions
 
-    # convertir AST a código
-    new_code = astor.to_source(tree)
+            # --- Compute indentation ---
+            func_indent = len(lines[node.lineno - 1]) - len(lines[node.lineno - 1].lstrip())
+            body_indent = " " * (func_indent + 4)
 
-    with open(file_path, "w", encoding="utf-8") as f:
-        f.write(new_code)
+            # --- Prepare new docstring block ---
+            doc_lines = func_data["docstring"].split("\n")
+            new_doc_block = (
+                [""] +
+                [body_indent + '"""'] +
+                [body_indent + line for line in doc_lines] +
+                [body_indent + '"""'] +
+                [""]
+            )
+
+            # --- Replace existing docstring if found ---
+            if (
+                node.body
+                and isinstance(node.body[0], ast.Expr)
+                and isinstance(getattr(node.body[0], "value", None), ast.Constant)
+                and isinstance(node.body[0].value.value, str)
+            ):
+                doc_start_idx = node.body[0].lineno - 1
+                doc_end_idx = doc_start_idx + 1
+                open_quote = None
+
+                if lines[doc_start_idx].strip().startswith('"""'):
+                    open_quote = '"""'
+                elif lines[doc_start_idx].strip().startswith("'''"):
+                    open_quote = "'''"
+
+                while doc_end_idx < len(lines):
+                    if lines[doc_end_idx].strip().endswith(open_quote):
+                        doc_end_idx += 1
+                        break
+                    doc_end_idx += 1
+
+                lines[doc_start_idx:doc_end_idx] = new_doc_block
+            else:
+                # --- Insert docstring at the start of the body ---
+                insert_idx = node.body[0].lineno - 1
+                lines[insert_idx:insert_idx] = new_doc_block
+
+    file_path.write_text("\n".join(lines), encoding="utf-8")

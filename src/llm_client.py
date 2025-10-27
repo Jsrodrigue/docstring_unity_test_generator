@@ -1,20 +1,21 @@
 import json
-from src.constants import clients
-
+from src.constants import clients, MAX_TOKENS
 #############################
 # Helper to make the prompt #
 #############################
 
-def make_prompt(prompt_template, functions):
+def make_prompt(prompt_base, functions):
   functions_code = "\n\n".join([f['source'] for f in functions])
-  prompt = prompt_template.format(functions_code=functions_code)
+  prompt = prompt_base.format(functions_code=functions_code)
   return prompt
 
 ######################################
 # Function to generate docstrings ####
 ######################################
 
-def generate_docstrings(functions, prompt_template, system_prompt=None, model="openai/gpt-oss-20b"):
+import json
+
+def generate_docstrings(functions, prompt_base, system_prompt=None, model="openai/gpt-oss-20b"):
     """
     Generate docstrings for multiple functions in a single LLM call.
 
@@ -25,7 +26,7 @@ def generate_docstrings(functions, prompt_template, system_prompt=None, model="o
     Returns:
         list of dicts with keys 'name' and 'docstring'
     """
-    prompt = make_prompt(prompt_template, functions)
+    prompt = make_prompt(prompt_base, functions)
     
     if model not in clients:
         raise ValueError(f"Model '{model}' not found in clients dictionary.")
@@ -37,14 +38,13 @@ def generate_docstrings(functions, prompt_template, system_prompt=None, model="o
             {"role": "system", "content": system_prompt},
             {"role": "user", "content": prompt}
         ],
-        max_tokens=2000, 
+        max_tokens=MAX_TOKENS, 
         response_format={"type": "text"}
     )
-
     raw_text = response.choices[0].message.content.strip()
 
     try:
-        # Conviert the json
+        # Convert to list of dicts
         return json.loads(raw_text)
     except json.JSONDecodeError as e:
         print("Error parsing JSON from model output:", e)
