@@ -25,39 +25,56 @@ groq_url = "https://api.groq.com/openai/v1"
 openai_client = OpenAI(api_key=openai_api_key)
 groq_client = OpenAI(api_key=groq_api_key, base_url=groq_url)
 
-# Clients dictionary with models
+# Clients models and client dictionary
+models = ["gpt-4o-mini",
+          "meta-llama/llama-4-scout-17b-16e-instruct",
+          "openai/gpt-oss-20b",
+          "openai/gpt-oss-120b" ]
+
 clients = {
-    "gpt-4o-mini": openai_client,  # OpenAI small model
-    "llama-3.1-8b-instant": groq_client,  # Groq cheap model for testing
-    "gpt-oss-20b": groq_client,  # Groq GPT OSS 20B medium
-    "openai/gpt-oss-120b": groq_client,  # Groq GPT OSS 120B powerful
+    "gpt-4o-mini": openai_client,                                   # OpenAI model                $0.15/$0.60
+    "meta-llama/llama-4-scout-17b-16e-instruct" : groq_client,      # Groq Llama model            $0.11/$0.34
+    "openai/gpt-oss-20b": groq_client,                              # Groq GPT OSS 20B - cheaper  $0.075/$0.30
+    "openai/gpt-oss-120b": groq_client                              # Groq GPT OSS 120B powerful  $0.15/$0.60
 }
+                        # Groq GPT OSS 120B powerful  $0.15/$0.60
 
 
-################################
-# SYSTEM_PROMT AND BASE PROMPT #
-################################
+####################################
+# SYSTEM_PROMT AND TEMPLATE PROMPT #
+####################################
 
-# System prompt
+# System prompt 
 SYSTEM_PROMPT = """
-You are a Python expert. Generate Python docstrings following best practices updated in 2025:
-- Use triple double quotes (\"\"\") for the docstring.
+You are a Python expert. Generate Python docstrings following best practices 
+updated in 2025:
 - Include a brief description of what the function does.
 - Include Args with type annotations and descriptions.
-- Include Returns with type and description if applicable.
+- Include Returns with type and description only if the function actually 
+  returns a value.
 - Include Raises if the function can raise exceptions.
 - Keep lines <= 79 characters.
-- ONLY return the docstring text using triple double quotes, do NOT add explanations, 
-  comments, code, or anything else.
+- ONLY generate the docstring text, without triple quotes or any additional 
+  formatting.
+- Correct any formatting errors in existing docstrings.
+- Do NOT add explanations, comments, code, or anything else.
 - Do NOT include Markdown syntax (e.g., ```python) or any code formatting.
+- Write all the docstring in English.
+- If there is nothing to improve, return the original docstring unchanged.
+- Always return a JSON array of objects, each with keys:
+  - "name": function name
+  - "docstring": the improved or generated docstring (without triple quotes or any aditional formatation)
+ 
 """
 
 
 # Prompt base template
-PROMPT_TEMPLATE = """Write or improve the Python docstring for the following function.
-- If the function already has a docstring, improve it following best practices.
-- If it has no docstring, generate a new one. 
-- Include description of what it does and its arguments.
-- Return ONLY the docstring using triple double quotes (\"\"\").
-- Do NOT add explanations, comments, or code blocks.
+PROMPT_TEMPLATE = """
+  Generate or improve Python docstrings for the following functions.
+  Return a JSON array of objects, each with keys:
+  - "name": function name
+  - "docstring": the improved or generated docstring (without triple quotes or any aditional formatation)
+
+  Functions:
+  {functions_code}
 """

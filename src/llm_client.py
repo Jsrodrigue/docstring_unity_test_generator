@@ -1,49 +1,53 @@
+import json
 from src.constants import clients
 
-##################################
-# Function to generate docstring
-##################################
+#############################
+# Helper to make the prompt #
+#############################
 
-def generate_docstring_from_source(
-    func_source, 
-    model="llama-3.1-8b-instant", 
-    backend="openai",
-    prompt_template=None,
-    system_prompt=None
-):
+def make_prompt(prompt_template, functions):
+  functions_code = "\n\n".join([f['source'] for f in functions])
+  prompt = prompt_template.format(functions_code=functions_code)
+  return prompt
+
+######################################
+# Function to generate docstrings ####
+######################################
+
+def generate_docstrings(functions, prompt_template, system_prompt=None, model="openai/gpt-oss-20b"):
     """
-    Generate a Python docstring for a given function source code using an LLM.
+    Generate docstrings for multiple functions in a single LLM call.
 
     Args:
-        func_source: str, the full source code of the function
-        model: str, name of the model to use
-        backend: str, "openai" or "groq"
-        prompt_template: str, base user prompt to prepend before the function code
-        system_prompt: str, system prompt to guide the LLM behavior
+        functions: list of dicts with keys 'name' and 'source'
+        model: str, model name to use
 
     Returns:
-        str: generated docstring
+        list of dicts with keys 'name' and 'docstring'
     """
-    if prompt_template is None:
-        raise ValueError("prompt_template must be provided")
-    if system_prompt is None:
-        raise ValueError("system_prompt must be provided")
-
-    prompt = prompt_template + "\nFunction:\n" + func_source
-
-    if backend not in ["openai", "groq"]:
-        raise ValueError(f"Unknown backend: {backend}")
+    prompt = make_prompt(prompt_template, functions)
     
     if model not in clients:
         raise ValueError(f"Model '{model}' not found in clients dictionary.")
-    
     client = clients[model]
 
     response = client.chat.completions.create(
         model=model,
-        messages=[{"role": "system", "content": system_prompt},
-                  {"role": "user", "content": prompt}],
-        max_tokens=200
+        messages=[
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": prompt}
+        ],
+        max_tokens=2000, 
+        response_format={"type": "text"}
     )
 
-    return response.choices[0].message.content.strip()
+    raw_text = response.choices[0].message.content.strip()
+
+    try:
+        # Conviert the json
+        return json.loads(raw_text)
+    except json.JSONDecodeError as e:
+        print("Error parsing JSON from model output:", e)
+        print("Raw output was:")
+        print(response.choices[0].message.content)
+        return []
