@@ -6,6 +6,20 @@ from src.utils.ast_utils import extract_functions
 
 
 def scan_path_for_docstrings(path: str, model):
+    """
+    Scan a directory or file path for Python files and extract
+    existing docstrings. Suggest replacements based on generated
+    ones from a specified model.
+    
+    Args:
+        path (str): The file or directory path to scan for Python files.
+        model: The model used for generating suggested docstrings.
+    
+    Returns:
+        list: A list of dictionaries containing information about the
+               scanned files, including the original and suggested
+    docstrings, and any errors encountered during the scan.
+    """
     path_obj = Path(path).resolve()
     if not path_obj.exists():
         return [{"file": None, "file_abs": None, "error": f"Path not found: {path}"}]
@@ -27,6 +41,7 @@ def scan_path_for_docstrings(path: str, model):
                 "file": str(file_path.relative_to(path_obj.parent)) if file_path.is_file() else str(file_path.relative_to(path_obj)),
                 "file_abs": str(file_path),
                 "name": func_info["name"],
+                "source": func_info["source"],
                 "original": func_info["docstring"] or "",
                 "suggested": suggested_docstring,
             })

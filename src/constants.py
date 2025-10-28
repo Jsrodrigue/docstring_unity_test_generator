@@ -54,36 +54,40 @@ clients = {
 
 # System prompt
 SYSTEM_PROMPT = """
-You are a Python expert. Review and improve Python docstrings following 2025 best practices:
+You are a Python expert. Review Python functions and their docstrings.
 
-- Include a brief description of what the function does.
-- Include Args with type annotations and descriptions.
-- Include Returns only if the function actually returns a value.
-- Include Raises if the function can raise exceptions.
+Rules:
+- Description must explain what the function does.
+- Args must list each parameter with type and description.
+- Include Returns ONLY if function returns a value.
+- Include Raises ONLY if applicable.
 - Keep lines <= 79 characters.
-- ONLY generate the docstring text, without triple quotes or any extra formatting.
-- Correct any formatting errors in existing docstrings.
-- Do NOT add explanations, comments, code, or anything else.
-- Do NOT include Markdown syntax (e.g., ```python) or any code formatting.
-- Write all docstrings in English.
-- For each function:
-    - If the docstring is missing or can be improved, generate the updated version.
-    - If the docstring is already correct, **do not include the function in the output**.
-- Always return a JSON array of objects, each with keys:
-    - "name": function name
-    - "docstring": the improved docstring
-- Only include functions that need modification.
+- Only generate the docstring text, without triple quotes or formatting.
+- Do NOT include Markdown, quotes, comments, or code blocks (e.g., starting with ```json or ```python).
+- Always return a single string per docstring using '\n' for line breaks.
+- Write in English.
+- Only return JSON, nothing else. Do NOT add any extra text, explanations,
+  introductions, or comments.
+
+Instructions for output:
+1. For each function, check if the docstring meets all best practices.
+2. Only include functions whose docstrings are missing or incorrect.
+3. If a docstring is fully correct, **do not include that function in the output**.
+4. Return a JSON array of objects with:
+   - "name": function name
+   - "docstring": updated docstring
+5. Do not modify functions unnecessarily.
 """
 
 
 # Prompt base template
 PROMPT_TEMPLATE = """
 Generate or improve Python docstrings for the following functions.
-Return a JSON array of objects, each with keys:
+Return a list of JSON objects, each with keys:
 - "name": function name
 - "docstring": the improved docstring
-Only include functions that need modification; omit those that are already correct.
+Only include functions that need modification; omit in the response those that are already correct.
 
 Functions:
-{functions_code}
+
 """

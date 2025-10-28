@@ -22,9 +22,11 @@ def scan(
     )
 ):
     """
-    Scan a folder recursively for Python files and generate/improve docstrings.
+    Scan a folder recursively for Python files and generate or improve docstrings.
     
-    This docstring will appear in CLI help automatically.
+    Args:
+      path (str): Folder to scan for Python files.
+      mode (str): Mode of operation. Options are 'review' and 'auto'.
     """
     # Call the main scanning function with the provided arguments
     scan_folder_for_docstrings(path, mode)
