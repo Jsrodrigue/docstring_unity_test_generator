@@ -34,22 +34,3 @@ def extract_functions(file_path):
             funcs.append(func_info)
 
     return funcs
-
-
-if __name__ == "__main__":
-    import sys
-    if len(sys.argv) != 2:
-        print("Uso: python src/parser.py <archivo.py>")
-        sys.exit(1)
-
-    file_path = sys.argv[1]
-    functions = extract_functions(file_path)
-
-    if not functions:
-        print("⚠️ No functions found in the file.")
-    else:
-        for func in functions:
-            print(f"\n🔹 Function: {func['name']}")
-            print(f"   Arguments: {func['args']}")
-            print(f"   Docstring: {func['docstring']}")
-            print("-" * 50)

@@ -1,5 +1,6 @@
 import json
 from src.constants import clients, MAX_TOKENS
+
 #############################
 # Helper to make the prompt #
 #############################
@@ -13,9 +14,9 @@ def make_prompt(prompt_base, functions):
 # Function to generate docstrings ####
 ######################################
 
-import json
 
-def generate_docstrings(functions, prompt_base, system_prompt=None, model="openai/gpt-oss-20b"):
+
+def generate_docstrings(functions, prompt_base, system_prompt=None, model="meta-llama/llama-4-scout-17b-16e-instruct"):
     """
     Generate docstrings for multiple functions in a single LLM call.
 

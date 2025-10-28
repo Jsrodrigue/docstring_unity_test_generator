@@ -26,14 +26,23 @@ class EarlyStopping:
     """
 
     def __init__(self, patience=5, verbose=False, delta=0.0):
+
+
+
         """
-        Initializes an EarlyStopping monitor that stops training when a monitored metric does not improve for a specified number of epochs.
+        Initialize the EarlyStopping object.
         
         Args:
-            patience (int): Number of epochs with no improvement to tolerate.
-            verbose (bool): Whether to print messages when no improvement is observed.
-            delta (float): Minimum change to qualify as an improvement.
+            patience (int, optional): Number of epochs to wait before stopping after
+                the last time the monitored metric improved (default is 5).
+            verbose (bool, optional): If True, prints a message for each early
+                stopping (default is False).
+            delta (float, optional): Minimum change in the monitored quantity to
+                qualify as an improvement (default is 0.0).
         """
+
+
+
         self.patience = patience
         self.verbose = verbose
         self.delta = delta
@@ -63,23 +72,23 @@ class EarlyStopping:
 
 
 def train_step(model, dataloader, loss_fn, optimizer, device, metrics_list=None):
+    
+
     """
-    Perform a single training epoch over the provided dataloader. It updates the model parameters via backpropagation, computes the average loss, and evaluates the specified metrics. Returns a dictionary mapping metric names to their computed values, including the average loss.
+    Performs a training step on the model.
     
     Args:
-        model (torch.nn.Module): The model to train.
-        dataloader (DataLoader): DataLoader yielding input tensors and target labels.
-        loss_fn (callable): Callable that computes the loss between model outputs and targets.
-        optimizer (torch.optim.Optimizer): Optimizer used to update the model.
-        device (torch.device): Device on which computations occur.
-        metrics_list (list, optional): List of metric names to compute; defaults to ['accuracy']. 
+        model (torch.nn.Module): The model to be trained.
+        dataloader (DataLoader): DataLoader for the training dataset.
+        loss_fn (callable): The loss function used for training.
+        optimizer (Optimizer): The optimizer for model parameters.
+        device (torch.device): The device to use for training.
+        metrics_list (list, optional): List of metrics to compute (default is None).
     
     Returns:
-        dict: Metric names mapped to their computed float values.
-    
-    Raises:
-        RuntimeError: If there is an error during the training step.
+        dict: A dictionary containing training metrics and loss.
     """
+
     model.train()
     total_loss = 0.0
     all_preds, all_labels = [], []
@@ -121,24 +130,33 @@ def train_mlflow(
 ):
 
 
+
+
+
     """
-    Train a model with MLflow tracking.
+    Train a model using MLflow tracking and validation.
     
     Args:
-        model (torch.nn.Module): The model to train.
-        train_loader (DataLoader): DataLoader yielding input tensors and target labels for training.
-        val_loader (DataLoader): DataLoader yielding input tensors and target labels for validation.
-        optimizer (torch.optim.Optimizer): Optimizer used to update the model.
-        loss_fn (callable): Callable that computes the loss between model outputs and targets.
-        cfg (dict): Configuration dictionary.
-        device (torch.device, optional): Device on which computations occur; defaults to None.
-        continue_training (bool, optional): Whether to continue training from a previous checkpoint; defaults to False.
-        continue_path (str, optional): Path to the previous checkpoint; defaults to None.
-        prev_metrics (dict, optional): Previous metrics; defaults to None.
+        model (torch.nn.Module): The model to be trained.
+        train_loader (DataLoader): DataLoader for the training dataset.
+        val_loader (DataLoader): DataLoader for the validation dataset.
+        optimizer (Optimizer): The optimizer for model parameters.
+        loss_fn (callable): The loss function used for training.
+        cfg (dict): Configuration dictionary with training settings.
+        device (optional): The device to use for training (default is cuda if
+            available).
+        continue_training (bool, optional): Flag to indicate if training should
+            continue from previous state.
+        continue_path (Path, optional): Path to load previous metrics if
+            continuing training.
+        prev_metrics (dict, optional): Previous metrics for continuing training.
     
     Returns:
-        dict: Training results.
+        dict: A dictionary containing training results and metrics.
     """
+
+
+
     set_seed(cfg.train.seed)
     device = device or torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model.to(device)
