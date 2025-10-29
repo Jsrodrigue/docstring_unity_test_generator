@@ -25,8 +25,9 @@ def scan(
     Scan a folder recursively for Python files and generate or improve docstrings.
     
     Args:
-      path (str): Folder to scan for Python files.
-      mode (str): Mode of operation. Options are 'review' and 'auto'.
+        path (str): The folder to scan for Python files.
+        mode (str): The mode of operation. Options are 'review' (asks for
+            confirmation) and 'auto' (updates automatically).
     """
     # Call the main scanning function with the provided arguments
     scan_folder_for_docstrings(path, mode)

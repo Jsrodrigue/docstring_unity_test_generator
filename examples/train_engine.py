@@ -25,6 +25,18 @@ class EarlyStopping:
     Early stops the training if validation loss doesn't improve after a given patience.
     """
     def __init__(self, patience=5, verbose=False, delta=0.0):
+        """
+        Initializes the EarlyStopping instance with patience, verbosity,
+        and delta parameters.
+        
+        Args:
+            patience (int): Number of epochs with no improvement
+                after which training will be stopped (default is 5).
+            verbose (bool): If True, prints messages about early stopping events
+                (default is False).
+            delta (float): Minimum change in the monitored quantity to
+                consider it as an improvement (default is 0.0).
+        """
         self.patience = patience
         self.verbose = verbose
         self.delta = delta
@@ -55,18 +67,19 @@ class EarlyStopping:
 
 def train_step(model, dataloader, loss_fn, optimizer, device, metrics_list=None):
     """
-    Performs a training step on the model.
+    Perform a training step on the given model.
     
     Args:
         model: The model to train.
-        dataloader: The data loader for the training dataset.
-        loss_fn: The loss function used for training.
+        dataloader: DataLoader for the training dataset.
+        loss_fn: The loss function used during training.
         optimizer: The optimizer for model parameters.
         device: The device to use for training.
         metrics_list: List of metrics to compute (default is None).
     
     Returns:
-        dict: A dictionary containing training metrics.
+        dict: A dictionary containing training metrics including loss and any
+        specified metrics.
     """
     model.train()
     total_loss = 0.0
@@ -108,7 +121,7 @@ def train_mlflow(
     prev_metrics=None,
 ):
     """
-    Trains a model using MLflow for tracking metrics and artifacts.
+    Train a model using MLflow for tracking metrics and artifacts.
     
     Args:
         model: The model to be trained.

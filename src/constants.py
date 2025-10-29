@@ -1,8 +1,7 @@
 import os
 
 from dotenv import load_dotenv
-from openai import OpenAI
-
+from openai import AsyncOpenAI
 #############
 # PARAMETER #
 #############
@@ -23,13 +22,15 @@ groq_api_key = os.getenv("GROQ_API_KEY")
 
 groq_url = "https://api.groq.com/openai/v1"
 
-#####################
-# CLIENT INSTANCES  #
-#####################
+###########
+# CLIENTS #
+###########
 
-# Client instances
-openai_client = OpenAI(api_key=openai_api_key)
-groq_client = OpenAI(api_key=groq_api_key, base_url=groq_url)
+GROQ_BASE_URL = "https://api.groq.ai"
+
+groq_client     = AsyncOpenAI(base_url=GROQ_BASE_URL, api_key="GROQ_API_KEY")
+openai_client   = AsyncOpenAI()
+
 
 # Clients models and client dictionary
 models = [
@@ -54,40 +55,29 @@ clients = {
 
 # System prompt
 SYSTEM_PROMPT = """
-You are a Python expert. Review Python functions and their docstrings.
+You are a Python expert specializing in writing clear, standardized docstrings 
+following PEP 257 and the best practices for 2025.
+
+Your task is to review the provided Python functions and classes, and 
+generate or improve their docstrings only when necessary.
 
 Rules:
-- Description must explain what the function does.
-- Args must list each parameter with type and description.
-- Include Returns ONLY if function returns a value.
-- Include Raises ONLY if applicable.
-- Keep lines <= 79 characters.
-- Only generate the docstring text, without triple quotes or formatting.
-- Do NOT include Markdown, quotes, comments, or code blocks (e.g., starting with ```json or ```python).
-- Always return a single string per docstring using '\n' for line breaks.
-- Write in English.
-- Only return JSON, nothing else. Do NOT add any extra text, explanations,
-  introductions, or comments.
-
-Instructions for output:
-1. For each function, check if the docstring meets all best practices.
-2. Only include functions whose docstrings are missing or incorrect.
-3. If a docstring is fully correct, **do not include that function in the output**.
-4. Return a JSON array of objects with:
-   - "name": function name
-   - "docstring": updated docstring
-5. Do not modify functions unnecessarily.
+- If a function or class already has a complete, well-written docstring, skip it (do not include it in the output).
+- If it lacks a docstring, or the existing one can be improved for clarity, completeness, or consistency, include it.
+- Clearly describe what the function or class does.
+- Include Args with types and concise descriptions.
+- Add Returns, Raises, or Attributes if relevant.
+- Keep lines readable and concise (<= 79 characters ideally).
+- Do NOT include code, markdown, triple quotes, or comments.
+- The output must only contain updated or newly generated docstrings.
 """
+
 
 
 # Prompt base template
 PROMPT_TEMPLATE = """
-Generate or improve Python docstrings for the following functions.
-Return a list of JSON objects, each with keys:
-- "name": function name
-- "docstring": the improved docstring
-Only include functions that need modification; omit in the response those that are already correct.
+Analyze the following Python functions and classes.
+Generate improved docstrings only for those that need changes.
 
-Functions:
-
+Functions and classes:
 """
