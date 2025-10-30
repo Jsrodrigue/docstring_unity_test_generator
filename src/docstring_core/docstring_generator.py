@@ -1,10 +1,9 @@
 from pathlib import Path
 from typing import List
 from src.docstring_core.docstring_models import DocstringOutput
-from src.utils.ast_utils import extract_functions_and_classes
+from src.utils.code_extractor import extract_functions_and_classes, CodeItem
 from constants import PROMPT_TEMPLATE_DOCSTRINGS, SYSTEM_PROMPT_DOCSTRINGS
 from src.docstring_core.docstring_generator import generate_docstrings
-from agents.code_extractor import CodeItem as CodeItemModel
 
 ###########################################
 # 5️⃣ Scan path for Python docstrings
@@ -33,7 +32,7 @@ async def scan_path_for_docstrings(path: str, model) -> List[DocstringOutput]:
 
     for file_path in py_files:
         # extract_functions_and_classes debe devolver List[CodeItem]
-        items: List[CodeItemModel] = extract_functions_and_classes(file_path)
+        items: List[CodeItem] = extract_functions_and_classes(file_path)
 
         # Generar docstrings con el agente/modelo
         generated: List[DocstringOutput] = await generate_docstrings(

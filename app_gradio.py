@@ -1,9 +1,9 @@
 from pathlib import Path
 import gradio as gr
-from src.constants import models
+from constants import models
 from src.docstring_core.docstring_scanner import scan_path_for_docstrings
 from src.docstring_core.docstring_updater import update_docstring
-from src.docstring_core.docstring_class import DocstringOutput
+from src.docstring_core.docstring_models import DocstringOutput
 
 # -----------------------------
 # Scan folder and prepare first item for review

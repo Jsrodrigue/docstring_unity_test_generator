@@ -1,7 +1,7 @@
 from typing import List
 from pathlib import Path
 from pydantic import BaseModel
-from agents.code_extractor import CodeItem
+from src.utils.code_extractor import CodeItem
 
 ###########################################
 # Pydantic docstring output models
