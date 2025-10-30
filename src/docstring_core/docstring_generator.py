@@ -1,66 +1,65 @@
-from agents import Agent, Runner, OpenAIChatCompletionsModel
-from src.constants import SYSTEM_PROMPT, PROMPT_TEMPLATE, clients
-from src.docstring_core.docstring_class import DocstringList, DocstringOutput
+from pathlib import Path
+from typing import List
+from src.docstring_core.docstring_models import DocstringOutput
+from src.utils.ast_utils import extract_functions_and_classes
+from constants import PROMPT_TEMPLATE_DOCSTRINGS, SYSTEM_PROMPT_DOCSTRINGS
+from src.docstring_core.docstring_generator import generate_docstrings
+from agents.code_extractor import CodeItem as CodeItemModel
 
-# -----------------------------
-# Funciones
-# -----------------------------
-def make_prompt(prompt_base: str, items: list[dict]) -> str:
+###########################################
+# 5️⃣ Scan path for Python docstrings
+###########################################
+async def scan_path_for_docstrings(path: str, model) -> List[DocstringOutput]:
     """
-    Constructs a prompt by concatenating the base prompt and item sources.
+    Scan a directory or file for Python files, extract code items (functions/classes),
+    and generate suggested docstrings using the specified model.
     
     Args:
-        prompt_base (str): The base string to prepend to the items.
-        items (list[dict]): A list of dictionaries containing item data,
-            expected to include a 'source' key in each dictionary.
+        path (str): Path to the file or directory to scan.
+        model: Model used for generating docstrings, passed to the agent.
     
     Returns:
-        str: The combined prompt string containing the base prompt and item sources.
+        List[DocstringOutput]: Suggested docstrings where different from original.
     """
-    items_code = "\n\n".join([item["source"] for item in items])
-    return prompt_base + items_code
+    path_obj = Path(path).resolve()
+    if not path_obj.exists():
+        return []
 
-async def generate_docstrings(
-    items: list[dict],
-    model_name: str = "gpt-4o-mini",
-    prompt_base: str = PROMPT_TEMPLATE,
-    system_prompt: str | None = None,
-) -> list[DocstringOutput]:
-    """
-    Asynchronously generates docstrings for a list of items using the specified model.
-    
-    Args:
-        items (list[dict]): A list of dictionaries representing items for which
-            docstrings should be generated.
-        model_name (str, optional): The name of the model to use for generation.
-            Defaults to 'gpt-4o-mini'.
-        prompt_base (str, optional): The base prompt template to use. Defaults to
-            the 'PROMPT_TEMPLATE'.
-        system_prompt (str | None, optional): An optional system prompt providing
-            instructions to the model. Defaults to None.
-    
-    Returns:
-        list[DocstringOutput]: A list of generated docstring outputs.
-    
-    Raises:
-        ValueError: If the specified model name is not found in the clients
-            dictionary.
-    """
-    if model_name not in clients:
-        raise ValueError(f"Model '{model_name}' not found in clients dictionary.")
+    py_files = [path_obj] if path_obj.is_file() and path_obj.suffix == ".py" else list(path_obj.rglob("*.py"))
+    if not py_files:
+        return []
 
-    prompt = make_prompt(prompt_base, items)
-    client = clients[model_name]
+    all_results: List[DocstringOutput] = []
 
-    # Crear el modelo según el cliente
-    model_obj = OpenAIChatCompletionsModel(model=model_name, openai_client=client)
+    for file_path in py_files:
+        # extract_functions_and_classes debe devolver List[CodeItem]
+        items: List[CodeItemModel] = extract_functions_and_classes(file_path)
 
-    # Crear el Agent y Runner
-    agent = Agent(
-        name="Docstring Generator",
-        instructions=system_prompt or SYSTEM_PROMPT,
-        output_type=DocstringList,
-        model=model_obj,
-    )
-    result = await Runner.run(agent, prompt)
-    return result.final_output.items
+        # Generar docstrings con el agente/modelo
+        generated: List[DocstringOutput] = await generate_docstrings(
+            items=[ci.__dict__ for ci in items],
+            prompt_base=PROMPT_TEMPLATE_DOCSTRINGS,
+            system_prompt=SYSTEM_PROMPT_DOCSTRINGS,
+            model=model
+        )
+
+        # Comparar sugerencias con los docstrings existentes
+        for ci in items:
+            match = next((g for g in generated if g.name == ci.name), None)
+            suggested_docstring = match.docstring if match else ""
+            original_docstring = ci.docstring or ""
+            if original_docstring.strip() == suggested_docstring.strip():
+                continue  # saltar si no hay cambios
+
+            all_results.append(
+                DocstringOutput(
+                    name=ci.name,
+                    type=ci.type,
+                    docstring=suggested_docstring,
+                    original=original_docstring,
+                    source=ci.source,
+                    file_path=ci.file_path
+                )
+            )
+
+    return all_results
