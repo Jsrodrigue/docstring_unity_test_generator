@@ -1,22 +1,8 @@
-# src/agents/docstring_agent.py
-import json
-import re
 from constants import PROMPT_TEMPLATE_DOCSTRINGS, SYSTEM_PROMPT_DOCSTRINGS
 from src.agents.base_agent import BaseCodeAgent
 from src.models.docstring_models import DocstringOutput
 from src.utils.code_extractor import CodeItem
-
-def safe_json_loads(text: str):
-    """Try to parse JSON correcting common formatting mistakes."""
-    cleaned = re.sub(r',(\s*[}\]])', r'\1', text.strip())  # remove trailing commas
-    cleaned = cleaned.replace('\r', '').replace('\x00', '')
-    try:
-        return json.loads(cleaned)
-    except json.JSONDecodeError as e:
-        print("Error al parsear JSON incluso tras limpieza:", e)
-        print("Contenido limpio:")
-        print(cleaned)
-        return None
+from src.utils.json_utils import safe_json_loads
 
 
 class DocstringAgent(BaseCodeAgent):
