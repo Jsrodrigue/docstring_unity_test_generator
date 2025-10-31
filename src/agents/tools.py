@@ -4,7 +4,7 @@ from typing import List
 from agents.docstring_agent import DocstringAgent
 from src.agents.unitytest_agent import UnityTestAgent
 from src.utils.code_extractor import CodeExtractorTool, CodeItem
-from src.docstring_core.docstring_models import DocstringOutput
+from src.models.docstring_models import DocstringOutput
 
 def make_doc_tool(doc_agent: DocstringAgent):
     @function_tool(

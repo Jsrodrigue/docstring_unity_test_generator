@@ -1,4 +1,3 @@
-# agents/orchestrator_agent.py
 from pathlib import Path
 from agents.base_agent import BaseCodeAgent
 from agents.docstring_agent import DocstringAgent

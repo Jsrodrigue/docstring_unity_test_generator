@@ -1,52 +1,53 @@
-# src/docstring_core/updater.py
 import ast
 from pathlib import Path
-from typing import List
-from src.docstring_core.docstring_models import DocstringOutput
+from typing import List, Dict
 
-def update_docstrings(file_path: Path, items: List[DocstringOutput]):
+def update_docstrings(file_path: Path, items: List[Dict]):
     """
-    Update multiple docstrings in a Python file based on DocstringOutput objects.
+    Update multiple docstrings in a Python file based on minimal dict entries.
+
+    Handles functions, methods, and classes, including empty bodies.
 
     Args:
         file_path (Path): Path to the Python file to update.
-        items (List[DocstringOutput]): List of docstring entries to apply.
+        items (List[Dict]): List of dicts with keys 'name' and 'docstring'.
     """
     lines = file_path.read_text(encoding="utf-8").splitlines()
     tree = ast.parse("\n".join(lines))
 
-    # Crear un diccionario para acceso rápido por nombre
-    items_dict = {item.name: item for item in items}
+    items_map = {item['name']: item for item in items}
 
     for node in ast.walk(tree):
-        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)) and node.name in items_dict:
-            item = items_dict[node.name]
+        if not isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
+            continue
+        if node.name not in items_map:
+            continue
 
-            # Comprobar si ya hay docstring
-            docstring_exists = ast.get_docstring(node, clean=False) is not None
+        item = items_map[node.name]
 
-            # Calcular indentación
-            if node.body:
-                first_line = lines[node.body[0].lineno - 1]
-                body_indent = len(first_line) - len(first_line.lstrip())
-                indent_str = " " * body_indent
-            else:
-                # Función vacía
-                body_indent = 4
-                indent_str = " " * body_indent
-                lines.insert(node.lineno, indent_str + "pass")
+        # Si la función o clase no tiene cuerpo, agregar un pass temporal
+        if not node.body:
+            insert_idx = node.lineno
+            lines.insert(insert_idx, " " * (node.col_offset + 4) + "pass")
+            node.body = [None]  # placeholder
 
-            # Construir bloque de docstring
-            doc_lines = item.docstring.strip().split("\n")
-            new_doc_block = [indent_str + '"""'] + [indent_str + line for line in doc_lines] + [indent_str + '"""']
+        # Indentación correcta: cuerpo de la función/clase
+        body_indent = node.body[0].col_offset if hasattr(node.body[0], "col_offset") else node.col_offset + 4
+        indent_str = " " * body_indent
 
-            if docstring_exists:
-                doc_node = node.body[0]
-                doc_start_idx = doc_node.lineno - 1
-                doc_end_idx = getattr(doc_node.value, "end_lineno", doc_start_idx)
-                lines[doc_start_idx:doc_end_idx] = new_doc_block
-            else:
-                insert_idx = node.body[0].lineno - 1 if node.body else node.lineno
-                lines[insert_idx:insert_idx] = new_doc_block
+        # Construir docstring con la indentación del cuerpo
+        doc_lines = item['docstring'].strip().split("\n")
+        new_doc_block = [indent_str + '"""'] + [indent_str + line for line in doc_lines] + [indent_str + '"""']
+
+        docstring_exists = ast.get_docstring(node, clean=False) is not None
+
+        if docstring_exists and node.body:
+            doc_node = node.body[0]
+            start_idx = doc_node.lineno - 1
+            end_idx = getattr(getattr(doc_node, "value", None), "end_lineno", start_idx + 1)
+            lines[start_idx:end_idx] = new_doc_block
+        else:
+            insert_idx = node.body[0].lineno - 1 if node.body else node.lineno
+            lines[insert_idx:insert_idx] = new_doc_block
 
     file_path.write_text("\n".join(lines), encoding="utf-8")

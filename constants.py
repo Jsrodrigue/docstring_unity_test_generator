@@ -26,9 +26,7 @@ groq_url = "https://api.groq.com/openai/v1"
 # CLIENTS #
 ###########
 
-GROQ_BASE_URL = "https://api.groq.ai"
-
-groq_client     = AsyncOpenAI(base_url=GROQ_BASE_URL, api_key="GROQ_API_KEY")
+groq_client     = AsyncOpenAI(base_url=groq_url, api_key=groq_api_key)
 openai_client   = AsyncOpenAI()
 
 
@@ -85,29 +83,42 @@ Guidelines:
 
 # System prompt
 SYSTEM_PROMPT_DOCSTRINGS = """
-You are a Python expert specializing in writing clear, standardized docstrings 
-following PEP 257 and the best practices for 2025.
+You are a Python expert specializing in clear, standardized docstrings following PEP 257.
 
-Your task is to review the provided Python functions and classes, and 
-generate or improve their docstrings only when necessary.
+Task:
+- Review the provided Python functions and classes.
+- Generate or improve docstrings only if the existing docstring is missing or needs significant improvements.
+- Include a description of what the function or class does, its arguments (Args), and its return value (Returns) if applicable.
 
-Rules:
-- If a function or class already has a complete, well-written docstring, skip it (do not include it in the output).
-- If it lacks a docstring, or the existing one can be improved for clarity, completeness, or consistency, include it.
-- Clearly describe what the function or class does.
-- Include Args with types and concise descriptions.
-- Add Returns, Raises, or Attributes if relevant.
-- Keep lines readable and concise (<= 79 characters ideally).
-- Do NOT include code, markdown, triple quotes, or comments.
-- The output must only contain updated or newly generated docstrings.
+Output format:
+- Return a JSON array of objects, each with:
+  - "name": the function or class name
+  - "file_path": the path of the file containing the item
+  - "docstring": the suggested docstring text
+- Do not include any code, triple quotes, markdown, or comments.
+- Only include items that require changes.
+
+Example output:
+[
+  {
+    "name": "my_function",
+    "file_path": "/path/to/file.py",
+    "docstring": "Short description of what the function does.\nArgs:\n  x (int): Description\nReturns:\n  int: Description of return value",
+  }
+]
+
 """
-
-
 
 # Prompt base template
 PROMPT_TEMPLATE_DOCSTRINGS = """
 Analyze the following Python functions and classes.
 Generate improved docstrings only for those that need changes.
 
-Functions and classes:
+Each output should be a JSON object with the following keys:
+- "name": the function or class name
+- "file_path": the path to the file containing the item
+- "docstring": the suggested docstring text
+
+Items:
+
 """

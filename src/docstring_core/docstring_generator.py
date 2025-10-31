@@ -1,24 +1,15 @@
 from pathlib import Path
 from typing import List
-from src.docstring_core.docstring_models import DocstringOutput
 from src.utils.code_extractor import extract_functions_and_classes, CodeItem
-from constants import PROMPT_TEMPLATE_DOCSTRINGS, SYSTEM_PROMPT_DOCSTRINGS
-from src.docstring_core.docstring_generator import generate_docstrings
+from src.agents.docstring_agent import DocstringAgent  # tu clase agente
 
-###########################################
-# 5️⃣ Scan path for Python docstrings
-###########################################
-async def scan_path_for_docstrings(path: str, model) -> List[DocstringOutput]:
+async def generate_from_path_dict(path: str, model_name: str = "gpt-4o-mini") -> List[dict]:
     """
-    Scan a directory or file for Python files, extract code items (functions/classes),
-    and generate suggested docstrings using the specified model.
-    
-    Args:
-        path (str): Path to the file or directory to scan.
-        model: Model used for generating docstrings, passed to the agent.
-    
-    Returns:
-        List[DocstringOutput]: Suggested docstrings where different from original.
+    Scan a file or folder, extract functions/classes, and generate minimal docstrings
+    using DocstringAgent.
+
+    Returns a list of dicts with keys:
+        'name', 'docstring', 'file_path', 'source' (original code of function/class)
     """
     path_obj = Path(path).resolve()
     if not path_obj.exists():
@@ -28,37 +19,25 @@ async def scan_path_for_docstrings(path: str, model) -> List[DocstringOutput]:
     if not py_files:
         return []
 
-    all_results: List[DocstringOutput] = []
+    agent = DocstringAgent(model_name=model_name)
+    results: List[dict] = []
 
     for file_path in py_files:
-        # extract_functions_and_classes debe devolver List[CodeItem]
         items: List[CodeItem] = extract_functions_and_classes(file_path)
+        if not items:
+            continue
 
-        # Generar docstrings con el agente/modelo
-        generated: List[DocstringOutput] = await generate_docstrings(
-            items=[ci.__dict__ for ci in items],
-            prompt_base=PROMPT_TEMPLATE_DOCSTRINGS,
-            system_prompt=SYSTEM_PROMPT_DOCSTRINGS,
-            model=model
-        )
+        generated: List = await agent.generate(items)
 
-        # Comparar sugerencias con los docstrings existentes
-        for ci in items:
-            match = next((g for g in generated if g.name == ci.name), None)
-            suggested_docstring = match.docstring if match else ""
-            original_docstring = ci.docstring or ""
-            if original_docstring.strip() == suggested_docstring.strip():
-                continue  # saltar si no hay cambios
+        # Matcheamos cada docstring generada con su CodeItem original
+        for item in items:
+            match = next((g for g in generated if g.name == item.name), None)
+            if match:
+                results.append({
+                    "name": match.name,
+                    "docstring": match.docstring,
+                    "file_path": str(item.file_path),
+                    "source": item.source
+                })
 
-            all_results.append(
-                DocstringOutput(
-                    name=ci.name,
-                    type=ci.type,
-                    docstring=suggested_docstring,
-                    original=original_docstring,
-                    source=ci.source,
-                    file_path=ci.file_path
-                )
-            )
-
-    return all_results
+    return results
