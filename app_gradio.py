@@ -9,7 +9,6 @@ from src.docstring_core.docstring_updater import update_docstrings
 # -----------------------------
 async def gradio_scan(folder_path, model):
     results: list[dict] = await generate_from_path_dict(folder_path, model_name=model)
-
     if not results:
         return "", "", "", 0, [], "❌ No items to process."
 

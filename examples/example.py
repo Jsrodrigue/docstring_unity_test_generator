@@ -2,15 +2,16 @@
 import pandas 
 
 def greet(name):
-    """
-    Generate a greeting message for a given name.
-    
-    Args:
-      name (str): The name of the person to greet.
-    Returns:
-      str: A greeting message including the provided name.
-    """
-    return f"Hello, {name}!"
+  """
+  Greet a person by name.
+  
+  Args:
+    name (str): Name of the person to greet.
+  
+  Returns:
+    str: Greeting message in the form 'Hello, <name>!'.
+  """
+  return f"Hello, {name}!"
 
 
 def add(a, b):
@@ -18,10 +19,7 @@ def add(a, b):
     Return the sum of two numbers.
     
     Args:
-      a: The first number.
-      b: The second number.
-    Returns:
-      int or float: The sum of a and b.
+      a: The sum of a and b.
     """
     return a + b
 

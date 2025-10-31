@@ -26,7 +26,7 @@ async def generate_from_path_dict(path: str, model_name: str = "gpt-4o-mini") ->
         items: List[CodeItem] = extract_functions_and_classes(file_path)
         if not items:
             continue
-
+        
         generated: List = await agent.generate(items)
 
         # Matcheamos cada docstring generada con su CodeItem original
@@ -37,7 +37,8 @@ async def generate_from_path_dict(path: str, model_name: str = "gpt-4o-mini") ->
                     "name": match.name,
                     "docstring": match.docstring,
                     "file_path": str(item.file_path),
-                    "source": item.source
+                    "source": item.source, 
+                    "original": item.docstring
                 })
 
     return results

@@ -1,3 +1,4 @@
+# src/agents/base_agent.py
 from agents import Agent, Runner, OpenAIChatCompletionsModel
 from constants import clients
 
@@ -5,8 +6,13 @@ class BaseCodeAgent:
     def __init__(self, name: str, system_prompt: str, model_name: str = "gpt-4o-mini"):
         if model_name not in clients:
             raise ValueError(f"Model '{model_name}' not found in clients dictionary.")
+
+        # ✅ Guardar el nombre del modelo para poder accederlo después
+        self.model_name = model_name
+
         client = clients[model_name]
         model_obj = OpenAIChatCompletionsModel(model=model_name, openai_client=client)
+
         self.agent = Agent(
             name=name,
             instructions=system_prompt,
