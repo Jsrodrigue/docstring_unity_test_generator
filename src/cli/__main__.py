@@ -1,6 +1,6 @@
 import typer
 from src.cli.docstring_cli import docstring_app
-#from src.unity_cli import app as unity_app   #TODO
+#from src.cli.unity_cli import app as unity_app   #TODO
 
 app = typer.Typer(help="LLM-based developer tools CLI")
 
@@ -10,3 +10,6 @@ app.add_typer(docstring_app, name="docstring")
 
 if __name__ == "__main__":
     app()
+
+############# usage ###############
+# Docstring: $ python -m src.cli docstring scan-and-generate examples/ --names greet

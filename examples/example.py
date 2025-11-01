@@ -1,7 +1,13 @@
 
 def greet(name):
   """
-  Return a greeting message for the given nam
+  Return a greeting message for the given name.
+  
+  Args:
+    name (str): The name of the person to greet.
+  
+  Returns:
+    str: A greeting message for the provided name.
   """
   return f"Hello, {name}!"
 
@@ -11,6 +17,10 @@ def add(a, b):
     Return the sum of two numbers.
     
     Args:
+      a (int or float): The first number.
+      b (int or float): The second number.
+    Returns:
+      int or float: The sum of the two numbers.
     """
     return a + b
 
@@ -20,10 +30,11 @@ def multiply(a, b, c=1):
     Return the product of two or three numbers.
     
     Args:
-      a (int or flcond number.
+      a (int or float): The first number.
+      b (int or float): The second number.
       c (int or float, optional): The third number to multiply, defaults to 1.
-    
     Returns:
+      int or float: The product of the numbers.
     """
     return a * b * c
 

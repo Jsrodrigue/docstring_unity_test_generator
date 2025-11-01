@@ -1,8 +1,8 @@
 from agents import Agent, Runner, OpenAIChatCompletionsModel
 from constants import clients
 from typing import Type, List
-from src.utils.code_model import CodeItem
-from src.utils.json_utils import safe_json_loads
+from src.core_base.code.code_model import CodeItem
+from src.core_base.code.json_utils import safe_json_loads
 
 ################# Base Agent #############################################
 class BaseCodeAgent:

@@ -1,9 +1,9 @@
 # src/utils/code_extractor.py
 import ast
 from pathlib import Path
-from typing import List, Union
+from typing import List, Union, Optional
 import sys
-from src.utils.code_model import CodeItem
+from src.core_base.code.code_model import CodeItem
 
 
 class CodeExtractorTool:
@@ -134,6 +134,25 @@ def extract_functions_and_classes(path: Union[str, Path]) -> List[CodeItem]:
     else:
         items = extractor.extract_from_path()
 
+    return items
+
+# -----------------------------
+# Helper: extract + filter code items
+# -----------------------------
+def get_filtered_code_items(file_path: Path, target_names: Optional[List[str]] = None) -> List[CodeItem]:
+    """
+    Extract functions and classes from a Python file and filter by target names if provided.
+    
+    Args:
+        file_path (Path): Path to a Python file.
+        target_names (List[str], optional): List of names to filter.
+    
+    Returns:
+        List[CodeItem]: List of filtered CodeItem objects.
+    """
+    items = extract_functions_and_classes(file_path)
+    if target_names:
+        items = [i for i in items if i.name in target_names]
     return items
 
 
