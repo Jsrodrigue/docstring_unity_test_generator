@@ -6,50 +6,47 @@ def update_docstrings(file_path: Path, items: List[Dict]):
     """
     Update multiple docstrings in a Python file based on minimal dict entries.
     
-    Handles functions, methods, and classes, including empty bodies.
-    
-    Args:
-        file_path (Path): Path to the Python file to update.
-        items (List[Dict]): List of dicts with keys 'name' and 'docstring'.
-    
-    Returns:
-        None: This function modifies the file in place and does not return a value.
+    Handles functions, methods, and classes, including nested ones.
     """
     lines = file_path.read_text(encoding="utf-8").splitlines()
-    tree = ast.parse("\n".join(lines))
+    text = "\n".join(lines)
+    tree = ast.parse(text)
 
-    items_map = {item['name']: item for item in items}
+    items_map = {item["name"]: item for item in items}
 
-    for node in ast.walk(tree):
-        if not isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
-            continue
-        if node.name not in items_map:
-            continue
+    # Ordenamos por línea descendente → evita desplazar índices al insertar
+    target_nodes = [
+        node for node in ast.walk(tree)
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef))
+        and node.name in items_map
+    ]
+    target_nodes.sort(key=lambda n: n.lineno, reverse=True)
 
+    for node in target_nodes:
         item = items_map[node.name]
+        docstring = item["docstring"].strip()
 
-        # Si la función o clase no tiene cuerpo, agregar un pass temporal
-        if not node.body:
-            insert_idx = node.lineno
-            lines.insert(insert_idx, " " * (node.col_offset + 4) + "pass")
-            node.body = [None]  # placeholder
+        # Indentación correcta (1er nodo del cuerpo o +4 espacios por defecto)
+        if node.body:
+            first_body_node = node.body[0]
+            indent_level = getattr(first_body_node, "col_offset", node.col_offset + 4)
+        else:
+            indent_level = node.col_offset + 4
+            lines.insert(node.lineno, " " * indent_level + "pass")  # garantiza cuerpo
 
-        # Indentación correcta: cuerpo de la función/clase
-        body_indent = node.body[0].col_offset if hasattr(node.body[0], "col_offset") else node.col_offset + 4
-        indent_str = " " * body_indent
-
-        # Construir docstring con la indentación del cuerpo
-        doc_lines = item['docstring'].strip().split("\n")
+        indent_str = " " * indent_level
+        doc_lines = docstring.split("\n")
         new_doc_block = [indent_str + '"""'] + [indent_str + line for line in doc_lines] + [indent_str + '"""']
 
-        docstring_exists = ast.get_docstring(node, clean=False) is not None
-
-        if docstring_exists and node.body:
+        existing_doc = ast.get_docstring(node, clean=False)
+        if existing_doc:
+            # Reemplazar docstring existente
             doc_node = node.body[0]
-            start_idx = doc_node.lineno - 1
-            end_idx = getattr(getattr(doc_node, "value", None), "end_lineno", start_idx + 1)
-            lines[start_idx:end_idx] = new_doc_block
+            start = doc_node.lineno - 1
+            end = getattr(getattr(doc_node, "value", None), "end_lineno", start + 1)
+            lines[start:end] = new_doc_block
         else:
+            # Insertar docstring nuevo después de la definición
             insert_idx = node.body[0].lineno - 1 if node.body else node.lineno
             lines[insert_idx:insert_idx] = new_doc_block
 

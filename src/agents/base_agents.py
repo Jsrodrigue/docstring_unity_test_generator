@@ -12,26 +12,15 @@ class BaseCodeAgent:
     Attributes:
         model_name (str): The name of the model used by the agent.
         agent (Agent): The agent instance configured with the provided parameters.
-    
-    Args:
-        name (str): The name of the agent.
-        system_prompt (str): The prompt that guides the agent's behavior.
-        model_name (str, optional): The model to use for the agent. Defaults to 'gpt-4o-mini'.
-    
-    Raises:
-        ValueError: If the model_name is not found in the clients dictionary.
     """
     def __init__(self, name: str, system_prompt: str, model_name: str = "gpt-4o-mini"):
         """
         Initializes the BaseCodeAgent with a specified name, system prompt, and model name.
         
         Args:
-            name (str): The name of the agent.
-            system_prompt (str): The prompt that guides the agent's behavior.
-            model_name (str, optional): The model to use for the agent. Defaults to 'gpt-4o-mini'.
-        
-        Raises:
-            ValueError: If the model_name is not found in the clients dictionary.
+          name (str): The name of the agent.
+          system_prompt (str): The system prompt to be provided to the agent.
+          model_name (str): The name of the model to be utilized by the agent. Defaults to 'gpt-4o-mini'.
         """
         if model_name not in clients:
             raise ValueError(f"Model '{model_name}' not found in clients dictionary.")
@@ -67,17 +56,39 @@ class BaseCodeAgent:
 
 class BaseCodeGenerationAgent(BaseCodeAgent):
     """
-    Base agent for generating structured code outputs (docstrings, tests, etc.)
+    Base agent for generating structured code outputs such as docstrings, tests, etc.
+    
+    Attributes:
+      OutputModel (Type): The model type for structured output, to be set in subclasses.
+      SYSTEM_PROMPT (str): The system prompt for the agent.
+      PROMPT_TEMPLATE (str): The template used to construct prompts for code generation.
     """
     OutputModel: Type  # to be set in subclasses
     SYSTEM_PROMPT: str
     PROMPT_TEMPLATE: str
 
     def __init__(self, model_name: str):
+        """
+        Initializes the BaseCodeAgent with a specified name, system prompt, and model name.
+        
+        Args:
+          name (str): The name of the agent.
+          system_prompt (str): The system prompt to be provided to the agent.
+          model_name (str): The name of the model to be utilized by the agent. Defaults to 'gpt-4o-mini'.
+        """
         super().__init__(name=self.__class__.__name__, system_prompt=self.SYSTEM_PROMPT, model_name=model_name)
         self.agent.output_type = list[self.OutputModel]
 
     def _make_prompt(self, items: List[CodeItem]) -> str:
+        """
+        Constructs a prompt string for the agent based on the provided code items.
+        
+        Args:
+          items (List[CodeItem]): A list of code items to include in the prompt.
+        
+        Returns:
+          str: The constructed prompt string containing imports and formatted code items.
+        """
         all_imports = set()
         for item in items:
             all_imports.update(getattr(item, "imports", []))
@@ -90,6 +101,15 @@ class BaseCodeGenerationAgent(BaseCodeAgent):
         return self.PROMPT_TEMPLATE + "\n" + imports_code + "\n\n" + items_code
 
     async def generate(self, items: List[CodeItem]) -> List:
+        """
+        Generates structured outputs based on the provided code items.
+        
+        Args:
+          items (List[CodeItem]): A list of code items for which outputs are to be generated.
+        
+        Returns:
+          List: A list of generated output instances of OutputModel or an empty list if no valid output is obtained.
+        """
         prompt = self._make_prompt(items)
         try:
             result = await self.run(prompt)
