@@ -1,15 +1,7 @@
 
-import pandas 
-
 def greet(name):
   """
-  Greet a person by name.
-  
-  Args:
-    name (str): Name of the person to greet.
-  
-  Returns:
-    str: Greeting message in the form 'Hello, <name>!'.
+  Retu
   """
   return f"Hello, {name}!"
 
@@ -19,21 +11,24 @@ def add(a, b):
     Return the sum of two numbers.
     
     Args:
-      a: The sum of a and b.
+      a (int or float): The first number to add.
+      b (int or float): The second number to add.
+    Returns:
+      int or float: The sum of a and b.
     """
     return a + b
 
 
 def multiply(a, b, c=1):
     """
-    Return the product of three numbers, with an optional third number.
+    Return the product of two or three numbers.
     
     Args:
-      a: The first number.
-      b: The second number.
-      c (int or float, optional): The third number. Defaults to 1.
+      a (int or float): The first number.
+      b (int or float): The second number.
+      c (int or float, optional): The third number to multiply, defaults to 1.
+    
     Returns:
-      int or float: The product of a, b, and c.
     """
     return a * b * c
 
@@ -62,7 +57,7 @@ class Rectangle:
         Calculate the area of the rectangle.
         
         Returns:
-          float: The area of the rectangle.
+          float: The area of the rectangle (width multiplied by height).
         """
         return self.width * self.height
 

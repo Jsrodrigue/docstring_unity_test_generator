@@ -5,12 +5,15 @@ from typing import List, Dict
 def update_docstrings(file_path: Path, items: List[Dict]):
     """
     Update multiple docstrings in a Python file based on minimal dict entries.
-
+    
     Handles functions, methods, and classes, including empty bodies.
-
+    
     Args:
         file_path (Path): Path to the Python file to update.
         items (List[Dict]): List of dicts with keys 'name' and 'docstring'.
+    
+    Returns:
+        None: This function modifies the file in place and does not return a value.
     """
     lines = file_path.read_text(encoding="utf-8").splitlines()
     tree = ast.parse("\n".join(lines))

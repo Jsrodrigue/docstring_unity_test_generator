@@ -5,11 +5,14 @@ from src.agents.docstring_agent import DocstringAgent  # tu clase agente
 
 async def generate_from_path_dict(path: str, model_name: str = "gpt-4o-mini") -> List[dict]:
     """
-    Scan a file or folder, extract functions/classes, and generate minimal docstrings
-    using DocstringAgent.
-
-    Returns a list of dicts with keys:
-        'name', 'docstring', 'file_path', 'source' (original code of function/class)
+    Scan a file or folder for Python files, extract functions and classes from them, and generate minimal docstrings using the specified DocstringAgent model.
+    
+    Args:
+      path (str): The path to a file or directory to be scanned.
+      model_name (str, optional): The name of the model to use for generating docstrings, default is 'gpt-4o-mini'.
+    
+    Returns:
+      List[dict]: A list of dictionaries, each containing 'name', 'docstring', 'file_path', and 'source' keys, where 'name' is the function or class name, 'docstring' is the generated docstring, 'file_path' is the path to the code item, and 'source' is the original code of the function or class.
     """
     path_obj = Path(path).resolve()
     if not path_obj.exists():

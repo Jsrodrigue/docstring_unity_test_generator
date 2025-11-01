@@ -3,7 +3,14 @@ import re
 
 
 def safe_json_loads(text: str):
-    """Try to parse JSON correcting common formatting mistakes."""
+    """
+    Attempt to parse a JSON string, correcting common formatting mistakes. This function removes trailing commas and certain unwanted characters before attempting to load the JSON.
+    
+    Args:
+      text (str): The JSON string to be parsed.
+    Returns:
+      dict or None: The parsed JSON object if successful, or None if parsing fails.
+    """
     cleaned = re.sub(r",(\s*[}\]])", r"\1", text.strip())  # remove trailing commas
     cleaned = cleaned.replace("\r", "").replace("\x00", "")
     try:

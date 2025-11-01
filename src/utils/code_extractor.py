@@ -3,7 +3,7 @@ import ast
 from pathlib import Path
 from typing import List, Union
 import sys
-from src.models.code_model import CodeItem
+from src.utils.code_model import CodeItem
 
 
 class CodeExtractorTool:
@@ -18,6 +18,19 @@ class CodeExtractorTool:
     def _process_node(
         self, node: ast.AST, source_lines: List[str], file_path: Path, imports: List[str], parent: str | None = None
     ) -> CodeItem:
+        """
+        Process an abstract syntax tree (AST) node to extract relevant information including its name, type, source code, and docstring.
+        
+        Args:
+          node (ast.AST): The AST node to process.
+          source_lines (List[str]): The lines of source code corresponding to the file.
+          file_path (Path): The path of the file the node belongs to.
+          imports (List[str]): A list of import statements from the file.
+          parent (str | None): The name of the parent class if the node is a method; otherwise, None.
+        
+        Returns:
+          CodeItem: An object containing the extracted information from the node.
+        """
         start = node.lineno - 1
         end = getattr(node, "end_lineno", start + 1)
         code_text = "\n".join(source_lines[start:end])
@@ -39,7 +52,15 @@ class CodeExtractorTool:
         )
 
     def extract_from_file(self, file_path: Path) -> List[CodeItem]:
-        """Extract CodeItem objects from a single Python file, including imports."""
+        """
+        Extract CodeItem objects from a single Python file, including its functions, methods, classes, and import statements.
+        
+        Args:
+          file_path (Path): The path to the Python file from which to extract code items.
+        
+        Returns:
+          List[CodeItem]: A list of CodeItem objects representing the extracted functions, methods, and classes.
+        """
         print(f"[INFO]: Extracting info from file {file_path} ...")
         with open(file_path, "r", encoding="utf-8") as f:
             source_code = f.read()
@@ -79,7 +100,12 @@ class CodeExtractorTool:
         return items
 
     def extract_from_path(self) -> List[CodeItem]:
-        """Extract all CodeItem objects from Python files under base_path recursively."""
+        """
+        Extract all CodeItem objects from all Python files within the base_path directory, recursively searching through subdirectories.
+        
+        Returns:
+          List[CodeItem]: A list of CodeItem objects representing all functions, methods, and classes found in the Python files under the base_path.
+        """
         py_files = list(self.base_path.rglob("*.py"))
         all_items: List[CodeItem] = []
         for file_path in py_files:

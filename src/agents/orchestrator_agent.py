@@ -8,11 +8,24 @@ from constants import SYSTEM_PROMPT_ORCHESTRATOR
 
 class OrchestratorAgent(BaseCodeAgent):
     """
-    Orchestrator agent that coordinates code analysis, docstring generation,
-    and unit test creation. Uses external tools for extraction, docstrings,
-    and tests to keep the agent lightweight.
+    Orchestrator agent that coordinates code analysis, docstring generation, and unit test creation using external tools to maintain a lightweight agent.
+    
+    Args:
+      base_path (str): The base path for code extraction.
+      model_name (str, optional): The name of the model to be used. Defaults to 'gpt-4o-mini'.
+    Returns:
+      None: This method does not return a value.
     """
     def __init__(self, base_path: str, model_name="gpt-4o-mini"):
+        """
+        Initializes the OrchestratorAgent with specified parameters.
+        
+        Args:
+          base_path (str): The base path for code extraction.
+          model_name (str, optional): The name of the model to be used. Defaults to 'gpt-4o-mini'.
+        Returns:
+          None: This method does not return a value.
+        """
         super().__init__(
             name="Orchestrator",
             system_prompt=SYSTEM_PROMPT_ORCHESTRATOR,
