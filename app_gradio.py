@@ -7,12 +7,19 @@ from src.docstring_core.docstring_updater import update_docstrings
 # -----------------------------
 # Scan folder and prepare first item for review
 # -----------------------------
-async def gradio_scan(folder_path, model):
-    results: list[dict] = await generate_from_path_dict(folder_path, model_name=model)
+async def gradio_scan(folder_path, model, names=""):
+    target_names = [n.strip() for n in names.split(",")] if names else None
+
+    results: list[dict] = await generate_from_path_dict(
+        folder_path,
+        model_name=model,
+        target_names=target_names
+    )
+    
     if not results:
         return "", "", "", 0, [], "❌ No items to process."
 
-    # Keep only items that need new/improved docstring
+    # Solo items con docstring generado
     results = [r for r in results if r["docstring"].strip()]
     if not results:
         return "", "", "", 0, [], "❌ No items to process."
@@ -20,12 +27,12 @@ async def gradio_scan(folder_path, model):
     first_item = results[0]
 
     return (
-        first_item.get("original", ""),  # original docstring
-        first_item["docstring"],         # suggested docstring
-        first_item["source"],            # function/class source
-        0,                               # index
-        results,                         # state
-        f"Item 1/{len(results)}",        # status
+        first_item.get("original", ""),
+        first_item["docstring"],
+        first_item["source"],
+        0,
+        results,
+        f"Item 1/{len(results)}",
     )
 
 # -----------------------------
@@ -37,11 +44,9 @@ def next_item(action: str, edited_text: str, results: list[dict], index: int):
 
     if action == "Accept":
         item = results[index]
-        # Update the file directly
         update_docstrings(Path(item["file_path"]), [item])
         item["docstring"] = edited_text
 
-    # Move to next
     next_index = index + 1
     if next_index >= len(results):
         return "", "", "", next_index, results, "✅ All items processed!"
@@ -52,7 +57,7 @@ def next_item(action: str, edited_text: str, results: list[dict], index: int):
     full_source = f"# Path: {next_item_data['file_path']}\n{source_code}"
 
     return (
-        next_item_data.get("original", ""),  # original docstring
+        next_item_data.get("original", ""),
         next_item_data["docstring"],
         full_source,
         next_index,
@@ -69,7 +74,7 @@ def accept_all(_, results: list[dict], index: int):
 
     for i in range(index, len(results)):
         item = results[i]
-        update_docstrings(Path(item["file_path"]), [ {"name": item["name"], "docstring": item["docstring"]} ])
+        update_docstrings(Path(item["file_path"]), [{"name": item["name"], "docstring": item["docstring"]}])
 
     return "", "", "", len(results), results, "✅ All items accepted!"
 
@@ -78,24 +83,31 @@ def accept_all(_, results: list[dict], index: int):
 # -----------------------------
 with gr.Blocks() as app:
     gr.Markdown("## Python Docstring Generator")
+    
+    # Inputs
     with gr.Row():
         folder_input = gr.Textbox(label="Folder path", placeholder="Enter path to your Python project folder")
         model_selector = gr.Dropdown(label="Select LLM model", choices=models, value=models[0])
+        names_input = gr.Textbox(label="Function/Class names (comma-separated)", placeholder="e.g. foo,bar,BazClass")
 
     scan_btn = gr.Button("Scan")
 
+    # Docstring preview/edit
     with gr.Row():
         original_box = gr.Textbox(label="Original Docstring", lines=5)
         suggested_box = gr.Textbox(label="Suggested Docstring (editable)", lines=5)
-    
+
+    # Action buttons
     with gr.Row():
         accept_btn = gr.Button("Accept")
         skip_btn = gr.Button("Skip")
         accept_all_btn = gr.Button("Accept All")
-    
+
+    # Status & source
     status_box = gr.Textbox(label="Status", interactive=False)
     source_box = gr.Code(label="Function/Class Source", lines=10)
 
+    # Internal state
     state_results = gr.State()
     state_index = gr.State()
 
@@ -104,7 +116,7 @@ with gr.Blocks() as app:
     # -----------------------------
     scan_btn.click(
         fn=gradio_scan,
-        inputs=[folder_input, model_selector],
+        inputs=[folder_input, model_selector, names_input],
         outputs=[original_box, suggested_box, source_box, state_index, state_results, status_box],
     )
 
