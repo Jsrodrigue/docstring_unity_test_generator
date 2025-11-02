@@ -1,7 +1,7 @@
 from pathlib import Path
 import gradio as gr
 from constants import models
-from src.docstring_core.docstring_generator import generate_from_path_dict
+from src.docstring_core.docstring_generator import generate_docstring_from_path_dict
 from src.docstring_core.docstring_updater import update_docstrings
 
 # -----------------------------
@@ -10,7 +10,7 @@ from src.docstring_core.docstring_updater import update_docstrings
 async def gradio_scan(folder_path, model, names=""):
     target_names = [n.strip() for n in names.split(",")] if names else None
 
-    results: list[dict] = await generate_from_path_dict(
+    results: list[dict] = await generate_docstring_from_path_dict(
         folder_path,
         model_name=model,
         target_names=target_names
@@ -19,7 +19,7 @@ async def gradio_scan(folder_path, model, names=""):
     if not results:
         return "", "", "", 0, [], "❌ No items to process."
 
-    # Solo items con docstring generado
+    # Only items with generated
     results = [r for r in results if r["docstring"].strip()]
     if not results:
         return "", "", "", 0, [], "❌ No items to process."

@@ -1,6 +1,6 @@
 from typing import List
 from src.core_base.code.code_model import CodeItem
-from src.agents_core.base_agents import BaseCodeGenerationAgent
+from src.core_base.agents.base_agents import BaseCodeGenerationAgent
 
 async def generate_outputs_for_items(agent: BaseCodeGenerationAgent, items: List[CodeItem], output_key: str) -> List[dict]:
     """
@@ -30,3 +30,4 @@ async def generate_outputs_for_items(agent: BaseCodeGenerationAgent, items: List
             })
 
     return results
+

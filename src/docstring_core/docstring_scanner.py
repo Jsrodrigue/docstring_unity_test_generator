@@ -1,6 +1,6 @@
 from pathlib import Path
 import asyncio
-from src.docstring_core.docstring_generator import generate_from_path_dict
+from src.docstring_core.docstring_manager import generate_from_path_dict
 from src.docstring_core.docstring_updater import update_docstrings
 
 

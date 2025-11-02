@@ -1,6 +1,6 @@
 import typer
 from constants import models
-from src.docstring_core.docstring_generator import generate_from_path_dict
+from src.docstring_core.docstring_manager import generate_docstring_from_path_dict
 import asyncio
 from pathlib import Path
 
@@ -35,7 +35,7 @@ def scan_and_generate(
     if target_names:
         typer.echo(f"🎯 Filtering for: {', '.join(target_names)}")
 
-    results = asyncio.run(generate_from_path_dict(path, model_name=model_name, target_names=target_names))
+    results = asyncio.run(generate_docstring_from_path_dict(path, model_name=model_name, target_names=target_names))
     if not results:
         typer.echo("❌ No docstrings generated.")
         return

@@ -2,9 +2,9 @@ from typing import List, Optional
 from src.core_base.generate.generator_manager import BaseGenerationManager
 from src.docstring_core.docstring_agent import DocstringAgent
 
-class DocstringGenerationManager(BaseGenerationManager):
+class UnitTestGenerationManager(BaseGenerationManager):
     """
-    Manager for generating docstrings from files or folders using a DocstringAgent.
+    Manager for generating unit test from files or folders using a UnitTestAgent.
     """
     agent_class = DocstringAgent
     output_key = "docstring"
@@ -13,7 +13,7 @@ class DocstringGenerationManager(BaseGenerationManager):
 # -----------------------------
 # Wrapper function (CLI/Gradio)
 # -----------------------------
-async def generate_from_path_dict(
+async def generate_docstring_from_path_dict(
     path: str,
     model_name: str = "gpt-4o-mini",
     target_names: Optional[List[str]] = None
@@ -29,5 +29,5 @@ async def generate_from_path_dict(
     Returns:
         List[dict]: Generated docstrings with metadata.
     """
-    manager = DocstringGenerationManager(model_name=model_name)
+    manager = UnitTestGenerationManager(model_name=model_name)
     return await manager.generate_for_path(path, target_names=target_names)

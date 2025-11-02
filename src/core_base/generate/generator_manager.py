@@ -1,7 +1,7 @@
 from pathlib import Path
 from typing import List, Optional, Type
 from src.core_base.code.code_extractor import get_filtered_code_items
-from src.agents_core.base_agents import BaseCodeGenerationAgent
+from src.core_base.agents.base_agents import BaseCodeGenerationAgent
 from src.core_base.generate.generate_utils import generate_outputs_for_items
 
 class BaseGenerationManager:
@@ -10,7 +10,7 @@ class BaseGenerationManager:
     
     Subclasses must define:
         - agent_class: subclass of BaseCodeGenerationAgent
-        - output_key: key for generated content (e.g., "docstring" or "unittest_code")
+        - output_key: key for generated content (e.g., "docstring" or "test_code")
         - item_generator_fn: the function used to trigger generation (optional override)
     """
 
@@ -54,7 +54,6 @@ class BaseGenerationManager:
             if not items:
                 continue
 
-            # Usa la función genérica reutilizable
             generated = await generate_outputs_for_items(
                 self.agent,
                 items,
