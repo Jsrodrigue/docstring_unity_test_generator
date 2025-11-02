@@ -7,7 +7,6 @@ class UnitTestGenerationManager(BaseGenerationManager):
     Manager for generating unit test from files or folders using a UnitTestAgent.
     """
     agent_class = DocstringAgent
-    output_key = "docstring"
 
 
 # -----------------------------

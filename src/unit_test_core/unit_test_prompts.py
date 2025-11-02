@@ -12,28 +12,30 @@ Output format:
   - "function_name": the name of the function to test
   - "file_path": the path of the file containing the function
   - "test_code": the complete pytest code as a string for that function
+  - "imports": a list of additional import statements required for the test
 - Do not include markdown, triple quotes, or extra explanations.
 - Ensure the generated code is valid Python and directly runnable with pytest.
 
 Example output:
 [
   {
-    "function_name": "scan_folder_for_docstrings",
+    "name": "scan_folder_for_docstrings",
     "file_path": "/path/to/file.py",
     "test_code": "def test_scan_folder_for_docstrings(tmp_path):\\n    ...",
+    "imports": ["import pytest", "from pathlib import Path"]
   }
 ]
 """
 
-# Prompt base template
 PROMPT_TEMPLATE_TESTS = """
 Analyze the following Python functions.
 Generate pytest unit tests for each function provided.
 
-Each output should be a JSON object with the following keys:
-- "function_name": the function name
+Each output should be a JSON array of objects, each object with the following keys:
+- "name": the function name
 - "file_path": the path to the file containing the function
 - "test_code": the full pytest code as a string
+- "imports": a list of import statements required for the test
 
 Functions:
 """

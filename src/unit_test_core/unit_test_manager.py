@@ -7,7 +7,6 @@ class UnitTestGenerationManager(BaseGenerationManager):
     Manager for generating docstrings from files or folders using a DocstringAgent.
     """
     agent_class = UnitTestAgent
-    output_key = "test_code"
 
 
 # -----------------------------
@@ -35,7 +34,7 @@ async def generate_unit_test_from_path_dict(
 
 # -----------------------------
 # Quick test 
-# uv run python -m src.unit_test_core.unit_test_manager examples/
+# uv run python -m src.unit_test_core.unit_test_manager src\\docstring_core\\docstring_scanner.py
 # -----------------------------
 import asyncio
 
@@ -47,4 +46,5 @@ if __name__ == "__main__":
     print(f"✅ Generated {len(results)} test(s)")
     for r in results:
         print(f"\nFile: {r['file_path']}")
+        print(f"\nImports: {r['imports']}")
         print(f"--- Test Output for {r['name']}---\n{r['test_code']}")

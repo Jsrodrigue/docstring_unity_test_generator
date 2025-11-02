@@ -2,7 +2,7 @@ import ast
 from pathlib import Path
 from typing import List, Dict
 
-def update_docstrings(file_path: Path, items: List[Dict]):
+def write_docstrings(file_path: Path, items: List[Dict]):
     """
     Update multiple docstrings in a Python file based on minimal dict entries.
     
@@ -14,7 +14,7 @@ def update_docstrings(file_path: Path, items: List[Dict]):
 
     items_map = {item["name"]: item for item in items}
 
-    # Ordenamos por línea descendente → evita desplazar índices al insertar
+    # Order by descendent line to avoid errors
     target_nodes = [
         node for node in ast.walk(tree)
         if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef))
@@ -26,7 +26,7 @@ def update_docstrings(file_path: Path, items: List[Dict]):
         item = items_map[node.name]
         docstring = item["docstring"].strip()
 
-        # Indentación correcta (1er nodo del cuerpo o +4 espacios por defecto)
+        # Correct indentation
         if node.body:
             first_body_node = node.body[0]
             indent_level = getattr(first_body_node, "col_offset", node.col_offset + 4)
@@ -40,13 +40,13 @@ def update_docstrings(file_path: Path, items: List[Dict]):
 
         existing_doc = ast.get_docstring(node, clean=False)
         if existing_doc:
-            # Reemplazar docstring existente
+            # Replace existent docstring
             doc_node = node.body[0]
             start = doc_node.lineno - 1
             end = getattr(getattr(doc_node, "value", None), "end_lineno", start + 1)
             lines[start:end] = new_doc_block
         else:
-            # Insertar docstring nuevo después de la definición
+            # Insert new doscsting after definition
             insert_idx = node.body[0].lineno - 1 if node.body else node.lineno
             lines[insert_idx:insert_idx] = new_doc_block
 

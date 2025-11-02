@@ -10,12 +10,10 @@ class BaseGenerationManager:
     
     Subclasses must define:
         - agent_class: subclass of BaseCodeGenerationAgent
-        - output_key: key for generated content (e.g., "docstring" or "test_code")
         - item_generator_fn: the function used to trigger generation (optional override)
     """
 
     agent_class: Type[BaseCodeGenerationAgent]
-    output_key: str
 
     def __init__(self, model_name: str = "gpt-4o-mini"):
         self.agent = self.agent_class(model_name=model_name)
@@ -57,7 +55,6 @@ class BaseGenerationManager:
             generated = await generate_outputs_for_items(
                 self.agent,
                 items,
-                output_key=self.output_key,
             )
             results.extend(generated)
 

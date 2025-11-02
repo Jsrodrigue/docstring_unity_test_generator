@@ -1,8 +1,8 @@
 from pathlib import Path
 import gradio as gr
 from constants import models
-from src.docstring_core.docstring_generator import generate_docstring_from_path_dict
-from src.docstring_core.docstring_updater import update_docstrings
+from src.docstring_core.docstring_manager import generate_docstring_from_path_dict
+from src.docstring_core.docstring_writer import write_docstrings
 
 # -----------------------------
 # Scan folder and prepare first item for review
@@ -27,7 +27,7 @@ async def gradio_scan(folder_path, model, names=""):
     first_item = results[0]
 
     return (
-        first_item.get("original", ""),
+        first_item.get("original_docstring", ""),
         first_item["docstring"],
         first_item["source"],
         0,
@@ -44,7 +44,7 @@ def next_item(action: str, edited_text: str, results: list[dict], index: int):
 
     if action == "Accept":
         item = results[index]
-        update_docstrings(Path(item["file_path"]), [item])
+        write_docstrings(Path(item["file_path"]), [item])
         item["docstring"] = edited_text
 
     next_index = index + 1
@@ -57,7 +57,7 @@ def next_item(action: str, edited_text: str, results: list[dict], index: int):
     full_source = f"# Path: {next_item_data['file_path']}\n{source_code}"
 
     return (
-        next_item_data.get("original", ""),
+        next_item_data.get("original_docstring", ""),
         next_item_data["docstring"],
         full_source,
         next_index,
@@ -74,7 +74,7 @@ def accept_all(_, results: list[dict], index: int):
 
     for i in range(index, len(results)):
         item = results[i]
-        update_docstrings(Path(item["file_path"]), [{"name": item["name"], "docstring": item["docstring"]}])
+        write_docstrings(Path(item["file_path"]), [{"name": item["name"], "docstring": item["docstring"]}])
 
     return "", "", "", len(results), results, "✅ All items accepted!"
 

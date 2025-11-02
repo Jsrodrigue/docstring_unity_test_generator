@@ -1,33 +1,43 @@
-from typing import List
+from typing import List, Dict, Any
 from src.core_base.code.code_model import CodeItem
 from src.core_base.agents.base_agents import BaseCodeGenerationAgent
 
-async def generate_outputs_for_items(agent: BaseCodeGenerationAgent, items: List[CodeItem], output_key: str) -> List[dict]:
+async def generate_outputs_for_items(
+    agent: BaseCodeGenerationAgent,
+    items: List[CodeItem]
+) -> List[Dict[str, Any]]:
     """
-    Generic helper to generate structured outputs (e.g. docstrings, unit tests) 
-    for a list of CodeItem objects using the provided agent.
+    Generate structured outputs (e.g., docstrings, unit tests) for a list of CodeItem objects
+    using the provided BaseCodeGenerationAgent.
+
+    Each resulting dictionary includes:
+      - All generated attributes from the agent
+      - Original fields of the CodeItem 'name', 'file_path', and 'source'
 
     Args:
-        agent (BaseCodeGenerationAgent): The agent responsible for generating structured output.
-        items (List[CodeItem]): List of code items to process.
-        output_key (str): The key name for the generated content (e.g., "docstring" or "unittest_code").
+        agent (BaseCodeGenerationAgent): The agent responsible for generating structured outputs.
+        items (List[CodeItem]): List of CodeItem instances to process.
 
     Returns:
-        List[dict]: A list of dictionaries containing the generated data and metadata.
+        List[Dict[str, Any]]: A list of dictionaries, each containing
+        the full merged data for each CodeItem.
     """
+
     generated = await agent.generate(items)
     results = []
 
-    for item in items:
-        match = next((g for g in generated if g.name == item.name), None)
-        if match:
-            results.append({
-                "name": match.name,
-                output_key: getattr(match, output_key, None),
-                "file_path": str(item.file_path),
-                "source": item.source,
-                "original": getattr(item, output_key, None),
-            })
+    for out_item in generated:
+        # Find matching generated item
+        match = next((item for item in items if item.name == out_item.name), None)
+
+        out_item_dict = out_item.__dict__.copy()
+
+        # Add or override key metadata
+        out_item_dict["name"] = match.name
+        out_item_dict["file_path"] = str(match.file_path)
+        out_item_dict["source"] = match.source
+        out_item_dict["original_docstring"] = match.docstring
+
+        results.append(out_item_dict)
 
     return results
-
