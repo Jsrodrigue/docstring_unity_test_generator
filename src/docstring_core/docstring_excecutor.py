@@ -1,9 +1,14 @@
-from src.core_base.excecutor.excecutor import execute_in_path
+from typing import List, Optional
+
+from src.core_base.executor.executor import execute_in_path
+
 from src.docstring_core.docstring_generator import generate_docstring_from_path_dict
 from src.docstring_core.docstring_writer import write_docstrings
-from typing import Optional, List
 
-def excecute_docstring_in_path(path: str, model_name: str = "gpt-4o-mini", target_names: Optional[List[str]] = None):
+
+def execute_docstring_in_path(
+    path: str, model_name: str = "gpt-4o-mini", target_names: Optional[List[str]] = None
+):
     """
     Scan a folder (or file) for Python code and automatically generate and update docstrings.
 
@@ -17,5 +22,5 @@ def excecute_docstring_in_path(path: str, model_name: str = "gpt-4o-mini", targe
         write_func=write_docstrings,
         model_name=model_name,
         item_name="docstrings",
-        target_names=target_names
+        target_names=target_names,
     )

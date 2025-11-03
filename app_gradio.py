@@ -7,7 +7,7 @@ from src.docstring_core.docstring_writer import write_docstrings
 # -----------------------------
 # Scan folder and prepare first item for review
 # -----------------------------
-async def gradio_scan(folder_path, model, names=""):
+async def gradio_scan_and_generate(folder_path, model, names=""):
     target_names = [n.strip() for n in names.split(",")] if names else None
 
     results: list[dict] = await generate_docstring_from_path_dict(
@@ -115,7 +115,7 @@ with gr.Blocks() as app:
     # Button callbacks
     # -----------------------------
     scan_btn.click(
-        fn=gradio_scan,
+        fn=gradio_scan_and_generate,
         inputs=[folder_input, model_selector, names_input],
         outputs=[original_box, suggested_box, source_box, state_index, state_results, status_box],
     )
