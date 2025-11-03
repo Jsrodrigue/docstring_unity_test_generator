@@ -1,11 +1,9 @@
 import typer
 from constants import models
-from src.docstring_core.docstring_manager import generate_docstring_from_path_dict
-from src.docstring_core.docstring_writer import write_docstrings
-import asyncio
-from pathlib import Path
+from src.docstring_core.docstring_excecutor import excecute_docstring_in_path
 
 docstring_app = typer.Typer(help="Python docstring auto-generator and updater")
+
 
 @docstring_app.command()
 def scan_and_generate(
@@ -36,13 +34,9 @@ def scan_and_generate(
     if target_names:
         typer.echo(f"🎯 Filtering for: {', '.join(target_names)}")
 
-    results = asyncio.run(generate_docstring_from_path_dict(path, model_name=model_name))
-    if not results:
-        typer.echo("❌ No docstrings generated.")
-        return
 
-    for item in results:
-        write_docstrings(Path(item["file_path"]), [item])
-    
-    typer.echo(f"✅ Updated {len(results)} item(s).")
-
+    excecute_docstring_in_path(
+        path=path,
+        model_name=model_name,
+        target_names=target_names
+    )

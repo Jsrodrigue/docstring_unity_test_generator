@@ -1,5 +1,5 @@
 import typer
-from src.cli.docstring_cli import docstring_app
+from src.docstring_core.docstring_cli import docstring_app
 #from src.cli.unity_cli import app as unity_app   #TODO
 
 app = typer.Typer(help="LLM-based developer tools CLI")

@@ -1,7 +1,7 @@
 from pathlib import Path
 import gradio as gr
 from constants import models
-from src.docstring_core.docstring_manager import generate_docstring_from_path_dict
+from src.docstring_core.docstring_generator import generate_docstring_from_path_dict
 from src.docstring_core.docstring_writer import write_docstrings
 
 # -----------------------------
