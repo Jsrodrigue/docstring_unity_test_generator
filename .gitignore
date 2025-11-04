@@ -9,6 +9,8 @@ wheels/
 # Virtual environments
 .venv
 
-# Envioremnt variables
+# Enviroment variables
 .env
 
+# Index
+.code_index/

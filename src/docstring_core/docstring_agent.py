@@ -1,18 +1,12 @@
 from src.docstring_core.docstring_models import DocstringOutput
 from src.docstring_core.docstring_prompts import SYSTEM_PROMPT_DOCSTRINGS, PROMPT_TEMPLATE_DOCSTRINGS
 from src.core_base.agents.base_agents import BaseCodeGenerationAgent
+from pathlib import Path
 
 class DocstringAgent(BaseCodeGenerationAgent):
-    """
-    A class that generates docstrings for Python functions and classes based on specified prompts.
-    
-    This class extends from BaseCodeGenerationAgent and leverages a system prompt and a prompt template to produce structured docstrings.
-    
-    Attributes:
-      SYSTEM_PROMPT (str): The prompt used to guide the docstring generation process.
-      PROMPT_TEMPLATE (str): The template format for the docstrings to be generated.
-      OutputModel (type): The model used for output, specifically for structured docstring representation.
-    """
     SYSTEM_PROMPT = SYSTEM_PROMPT_DOCSTRINGS
     PROMPT_TEMPLATE = PROMPT_TEMPLATE_DOCSTRINGS
     OutputModel = DocstringOutput
+
+    def __init__(self, model_name: str, project_path: Path = None):
+        super().__init__(model_name=model_name, project_path=project_path)

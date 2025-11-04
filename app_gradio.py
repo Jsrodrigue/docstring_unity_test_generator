@@ -7,19 +7,20 @@ from src.docstring_core.docstring_writer import write_docstrings
 # -----------------------------
 # Scan folder and prepare first item for review
 # -----------------------------
-async def gradio_scan_and_generate(folder_path, model, names=""):
+async def gradio_scan_and_generate(folder_path, model, names="", project_path=None):
     target_names = [n.strip() for n in names.split(",")] if names else None
 
     results: list[dict] = await generate_docstring_from_path_dict(
         folder_path,
         model_name=model,
-        target_names=target_names
+        target_names=target_names,
+        project_path=project_path,  # <-- soporte ProjectIndexer
     )
     
     if not results:
         return "", "", "", 0, [], "❌ No items to process."
 
-    # Only items with generated
+    # Only items with generated docstring
     results = [r for r in results if r["docstring"].strip()]
     if not results:
         return "", "", "", 0, [], "❌ No items to process."
@@ -74,7 +75,7 @@ def accept_all(_, results: list[dict], index: int):
 
     for i in range(index, len(results)):
         item = results[i]
-        write_docstrings(Path(item["file_path"]), [{"name": item["name"], "docstring": item["docstring"]}])
+        write_docstrings(Path(item["file_path"]), [item])
 
     return "", "", "", len(results), results, "✅ All items accepted!"
 
@@ -85,10 +86,13 @@ with gr.Blocks() as app:
     gr.Markdown("## Python Docstring Generator")
     
     # Inputs
-    with gr.Row():
-        folder_input = gr.Textbox(label="Folder path", placeholder="Enter path to your Python project folder")
-        model_selector = gr.Dropdown(label="Select LLM model", choices=models, value=models[0])
-        names_input = gr.Textbox(label="Function/Class names (comma-separated)", placeholder="e.g. foo,bar,BazClass")
+    with gr.Group():
+        with gr.Row():
+            folder_input = gr.Textbox(label="Folder path", placeholder="Enter path to your Python project folder")
+            project_input = gr.Textbox(label="Project root path (optional)", placeholder="Enter project root path for indexing")
+        with gr.Row():    
+            model_selector = gr.Dropdown(label="Select LLM model", choices=models, value=models[0])
+            names_input = gr.Textbox(label="Function/Class names (comma-separated)", placeholder="e.g. foo,bar,BazClass")
 
     scan_btn = gr.Button("Scan")
 
@@ -116,7 +120,7 @@ with gr.Blocks() as app:
     # -----------------------------
     scan_btn.click(
         fn=gradio_scan_and_generate,
-        inputs=[folder_input, model_selector, names_input],
+        inputs=[folder_input, model_selector, names_input, project_input],
         outputs=[original_box, suggested_box, source_box, state_index, state_results, status_box],
     )
 

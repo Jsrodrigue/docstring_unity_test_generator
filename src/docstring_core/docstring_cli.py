@@ -1,10 +1,8 @@
 import typer
 from src.docstring_core.docstring_executor import execute_docstring_in_path
-
 from constants import models
 
 docstring_app = typer.Typer(help="Python docstring auto-generator and updater")
-
 
 @docstring_app.command()
 def scan_and_generate(
@@ -22,6 +20,12 @@ def scan_and_generate(
         "-n",
         help="Comma-separated list of function/class names to process (e.g. 'foo,bar,BazClass')",
     ),
+    project: str = typer.Option(
+        None,
+        "--project",
+        "-p",
+        help="Root path of the project to index (optional)",
+    ),
 ):
     """
     Automatically scan a folder or file and update docstrings using the selected model.
@@ -36,7 +40,12 @@ def scan_and_generate(
     typer.echo(f"🔍 Scanning {path} using {model_name}...")
     if target_names:
         typer.echo(f"🎯 Filtering for: {', '.join(target_names)}")
+    if project:
+        typer.echo(f"🏷 Using project index at: {project}")
 
     execute_docstring_in_path(
-        path=path, model_name=model_name, target_names=target_names
+        path=path,
+        model_name=model_name,
+        target_names=target_names,
+        project_path=project,  # for proyect indexer
     )

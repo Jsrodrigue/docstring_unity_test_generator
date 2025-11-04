@@ -1,12 +1,28 @@
 from typing import List, Optional
+from pathlib import Path
 from src.core_base.generate.generator_manager import BaseGenerationManager
 from src.docstring_core.docstring_agent import DocstringAgent
 
-class UnitTestGenerationManager(BaseGenerationManager):
+class DocstringGenerationManager(BaseGenerationManager):
     """
-    Manager for generating unit test from files or folders using a UnitTestAgent.
+    Manager for generating docstrings using the specified agent.
+    
+    This class extends the BaseGenerationManager and is responsible for setting up the agent used for docstring generation.
+    
+    Attributes:
+      agent_class (Type[DocstringAgent]): The class of the agent used for generation.
     """
     agent_class = DocstringAgent
+
+    def __init__(self, model_name: str = "gpt-4o-mini", project_path: Optional[Path] = None):
+        """
+        Initializes the DocstringGenerationManager with the specified model name and project path.
+        
+        Args:
+          model_name (str): The name of the model to use, default is 'gpt-4o-mini'.
+          project_path (Optional[Path]): The path to the project, if provided.
+        """
+        super().__init__(model_name=model_name, project_path=project_path)
 
 
 # -----------------------------
@@ -15,18 +31,40 @@ class UnitTestGenerationManager(BaseGenerationManager):
 async def generate_docstring_from_path_dict(
     path: str,
     model_name: str = "gpt-4o-mini",
-    target_names: Optional[List[str]] = None
+    target_names: Optional[List[str]] = None,
+    project_path: Optional[str] = None
 ) -> List[dict]:
     """
-    Wrapper function for generating docstrings from a file or folder.
+    Generates docstrings from a given path dictionary asynchronously.
     
     Args:
-        path (str): Path to file or folder.
-        model_name (str, optional): Model name to use.
-        target_names (List[str], optional): Filter for specific function/class names.
+      path (str): The file path to generate docstrings for.
+      model_name (str): The name of the model to use, default is 'gpt-4o-mini'.
+      target_names (Optional[List[str]]): A list of target names for which docstrings should be generated.
+      project_path (Optional[str]): An optional project path to use for the generation.
     
     Returns:
-        List[dict]: Generated docstrings with metadata.
+      List[dict]: A list of dictionaries containing the generated docstrings.
     """
-    manager = UnitTestGenerationManager(model_name=model_name)
+    project_path_obj = Path(project_path) if project_path else None
+    manager = DocstringGenerationManager(model_name=model_name, project_path=project_path_obj)
     return await manager.generate_for_path(path, target_names=target_names)
+
+
+# -----------------------------
+# Quick test / CLI usage
+# -----------------------------
+import asyncio
+
+if __name__ == "__main__":
+    import sys
+    path = sys.argv[1] if len(sys.argv) > 1 else "examples/"
+    project_root = sys.argv[2] if len(sys.argv) > 2 else None
+
+    print(f"🔍 Running docstring generation on: {path}")
+    results = asyncio.run(generate_docstring_from_path_dict(path, project_path=project_root))
+    print(f"✅ Generated {len(results)} docstring(s)")
+    for r in results:
+        print(f"\nFile: {r['file_path']}")
+        print(f"Imports: {r['imports']}")
+        print(f"--- Docstring Output for {r['name']} ---\n{r['docstring']}")

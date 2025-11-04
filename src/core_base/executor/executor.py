@@ -5,11 +5,12 @@ from typing import Callable, List, Dict, Optional
 # ---------------- Generic folder scanner ----------------
 def execute_in_path(
     path: str,
-    generate_func: Callable[[str, str, Optional[List[str]]], asyncio.Future],
+    generate_func: Callable[[str, str, Optional[List[str]], Optional[str]], asyncio.Future],
     write_func: Callable[[Path, List[dict]], None],
     model_name: str = "gpt-4o-mini",
     item_name: str = "items",
-    target_names: Optional[List[str]] = None
+    target_names: Optional[List[str]] = None,
+    project_path: Optional[str] = None
 ):
     """
     Generic function to scan a folder (or file), optionally filter items by name,
@@ -18,11 +19,12 @@ def execute_in_path(
     Args:
         path (str): Path to a Python file or folder to scan.
         generate_func (Callable): Async function with signature 
-            (path:str, model_name:str, target_names:Optional[List[str]]) -> list of dict.
+            (path:str, model_name:str, target_names:Optional[List[str]], project_path:Optional[str]) -> list of dict.
         write_func (Callable): Function with signature (file_path:Path, items:List[dict]) -> None.
         model_name (str, optional): Model to use for generation.
         item_name (str, optional): Friendly name for logging (e.g., 'docstrings', 'unit tests').
         target_names (Optional[List[str]]): Names of functions/classes to filter and generate.
+        project_path (Optional[str]): Root path of the project to index.
     """
     path_obj = Path(path).resolve()
     if not path_obj.exists():
@@ -31,8 +33,8 @@ def execute_in_path(
 
     print(f"🔍 Scanning {path_obj} for Python files...")
 
-    # Generate items (with optional pre-filtering by target_names)
-    results: List[dict] = asyncio.run(generate_func(str(path_obj), model_name, target_names))
+    # Generate items (async)
+    results: List[dict] = asyncio.run(generate_func(str(path_obj), model_name, target_names, project_path))
 
     if not results:
         print(f"[INFO] No {item_name} were generated.")

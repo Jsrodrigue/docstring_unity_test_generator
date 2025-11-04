@@ -4,9 +4,16 @@ from typing import List, Dict
 
 def write_docstrings(file_path: Path, items: List[Dict]):
     """
-    Update multiple docstrings in a Python file based on minimal dict entries.
+    Update multiple docstrings in a Python file based on provided dictionary entries.
     
-    Handles functions, methods, and classes, including nested ones.
+    This function handles functions, methods, and classes, including nested ones.
+    
+    Args:
+      file_path (Path): The path to the Python file whose docstrings need to be updated.
+      items (List[Dict]): A list of dictionaries containing 'name' and 'docstring' keys for the items to update.
+    
+    Returns:
+      None: This function does not return a value, but modifies the specified file in place.
     """
     lines = file_path.read_text(encoding="utf-8").splitlines()
     text = "\n".join(lines)

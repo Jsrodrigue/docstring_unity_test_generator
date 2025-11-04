@@ -5,8 +5,9 @@ def greet(name):
   
   Args:
     name (str): The name of the person to greet.
+  
   Returns:
-    str: A greeting message that includes the name.
+    str: A greeting message addressed to the given name.
   """
   return f"Hello, {name}!"
 
