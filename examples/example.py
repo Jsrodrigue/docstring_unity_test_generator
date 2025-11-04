@@ -1,11 +1,10 @@
 
 def greet(name):
   """
-  Return a greeting message for the given name.
+  Greets a person by name.
   
   Args:
     name (str): The name of the person to greet.
-  
   Returns:
     str: A greeting message addressed to the given name.
   """

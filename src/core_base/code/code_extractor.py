@@ -1,4 +1,3 @@
-# src/utils/code_extractor.py
 
 import ast
 from pathlib import Path
@@ -117,20 +116,23 @@ class CodeExtractorTool:
         print(f"[INFO] Found {len(items)} items in {file_path}")
         return items
 
-    def extract_from_path(self) -> List[CodeItem]:
-        """
-        Extract CodeItem objects from all Python files under the base path (recursively).
+def extract_from_path(self) -> List[CodeItem]:
+    """
+    Extract CodeItem objects from all Python files under the base path (recursively),
+    ignoring virtual environments, caches, and hidden folders.
+    """
+    py_files = [
+        f for f in self.base_path.rglob("*.py")
+        if "venv" not in f.parts
+        and "__pycache__" not in f.parts
+        and not any(part.startswith(".") for part in f.parts)
+    ]
 
-        Returns:
-            List[CodeItem]: List of all CodeItem objects found in all Python files.
-        """
-        py_files = list(self.base_path.rglob("*.py"))
-        all_items: List[CodeItem] = []
+    all_items: List[CodeItem] = []
+    for file_path in py_files:
+        all_items.extend(self.extract_from_file(file_path))
+    return all_items
 
-        for file_path in py_files:
-            all_items.extend(self.extract_from_file(file_path))
-
-        return all_items
 
 
 def extract_functions_and_classes(path: Union[str, Path]) -> List[CodeItem]:

@@ -47,5 +47,5 @@ def scan_and_generate(
         path=path,
         model_name=model_name,
         target_names=target_names,
-        project_path=project,  # for proyect indexer
+        project_path=project,  # for project indexer
     )

@@ -6,25 +6,20 @@ Task:
 - Generate unit tests covering normal scenarios and edge cases.
 - Do not modify the original function code.
 - Only generate tests for the provided functions.
+- Detect and include all imports necessary for the tests (e.g., pytest, pathlib, unittest.mock).
+- Avoid any duplicate imports.
+- Always use standard formatting: 'import X' or 'from X import Y'.
+- If multiple functions require the same import, only include it once.
 
 Output format:
 - Return a JSON array of objects, each with:
-  - "function_name": the name of the function to test
-  - "file_path": the path of the file containing the function
-  - "test_code": the complete pytest code as a string for that function
-  - "imports": a list of additional import statements required for the test
-- Do not include markdown, triple quotes, or extra explanations.
-- Ensure the generated code is valid Python and directly runnable with pytest.
+  - "name": function name
+  - "file_path": path of the file containing the function
+  - "test_code": full pytest code as a string
+  - "imports": list of normalized import statements (no duplicates, all required)
 
-Example output:
-[
-  {
-    "name": "scan_folder_for_docstrings",
-    "file_path": "/path/to/file.py",
-    "test_code": "def test_scan_folder_for_docstrings(tmp_path):\\n    ...",
-    "imports": ["import pytest", "from pathlib import Path"]
-  }
-]
+- Do not include markdown, triple quotes, explanations, or comments.
+- Ensure the code is valid Python and directly runnable with pytest.
 """
 
 PROMPT_TEMPLATE_TESTS = """

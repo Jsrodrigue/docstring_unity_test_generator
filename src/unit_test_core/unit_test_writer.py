@@ -1,92 +1,91 @@
 import ast
 from pathlib import Path
 from typing import List, Dict
+from collections import defaultdict
 
-def write_unit_tests(results: List[Dict], tests_root: str = "tests"):
+
+def write_unit_tests(
+    results: List[Dict],
+    project_path: str,
+    tests_root: str = "tests"
+):
     """
     Create or update pytest test files in a mirrored 'tests/' directory.
 
-    Automatically adapts to the project structure (no hardcoded 'src').
+    This version:
+    - Rewrites the file entirely (no leftover duplicates).
+    - Normalizes imports: merges `from a import b` and `from a import b,c`.
+    - Ensures essential imports (pytest, Path) are present.
+    - Avoids duplicate imports.
 
     Args:
-        results (List[Dict]): List of LLM outputs with keys:
-            - 'file_path': path to the source file
-            - 'name': function name
-            - 'test_code': pytest test code
-            - 'imports' (optional): list of import lines to add
-        tests_root (str, optional): Root test folder (default: 'tests').
+        results (List[Dict]): List of LLM-generated outputs containing:
+            - 'file_path': Path to the source file.
+            - 'name': Function name to test.
+            - 'test_code': Pytest test code as a string.
+            - 'imports' (optional): List of import lines to include.
+        project_path (str): Root path of the project.
+        tests_root (str, optional): Root folder for tests (default: 'tests').
     """
+    project_path = Path(project_path).resolve()
     tests_root = Path(tests_root)
-    grouped = {}
+    grouped = defaultdict(list)
 
-    # Try to detect a common root (e.g., 'src', 'app', etc.)
-    all_paths = [Path(item["file_path"]).resolve() for item in results]
-    common_root = Path(*Path(all_paths[0]).parts[:1])
-    for p in all_paths:
-        for part in p.parts:
-            if part in ("src", "app", "package"):
-                common_root = Path(*p.parts[: p.parts.index(part) + 1])
-                break
-
+    # Group items by test file path
     for item in results:
         src_path = Path(item["file_path"]).resolve()
-
         try:
-            rel_path = src_path.relative_to(common_root)
+            rel_path = src_path.relative_to(project_path)
         except ValueError:
             rel_path = src_path.name
 
-        test_path = tests_root / Path(rel_path).parent / f"test_{Path(rel_path).stem}.py"
-        grouped.setdefault(test_path, []).append(item)
+        test_file = tests_root / rel_path.parent / f"test_{rel_path.stem}.py"
+        grouped[test_file].append(item)
 
+    # Helper to normalize imports
+    def normalize_imports(import_lines: List[str]) -> List[str]:
+        import_map = defaultdict(set)  # module -> set of names
+        raw_imports = set()
+        for line in import_lines:
+            line = line.strip()
+            if line.startswith("import "):
+                raw_imports.add(line)
+            elif line.startswith("from "):
+                parts = line.split()
+                module = parts[1]
+                names = parts[3].split(",")
+                for n in names:
+                    import_map[module].add(n.strip())
+        normalized = list(raw_imports)
+        for module, names in import_map.items():
+            normalized.append(f"from {module} import {', '.join(sorted(names))}")
+        return sorted(normalized)
+
+    # Process each test file
     for test_file, items in grouped.items():
         test_file.parent.mkdir(parents=True, exist_ok=True)
-        text = test_file.read_text(encoding="utf-8") if test_file.exists() else ""
+        lines = []
 
-        try:
-            tree = ast.parse(text or "")
-        except SyntaxError:
-            print(f"⚠️ Could not parse {test_file}, overwriting.")
-            tree = ast.parse("")
-
-        existing_funcs = {
-            node.name: (node.lineno - 1, getattr(node, "end_lineno", node.lineno))
-            for node in ast.walk(tree)
-            if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))
-        }
-
-        lines = text.splitlines() if text else []
-        header_lines = []
-
-        # Ensure pytest import
-        if not any("import pytest" in line for line in lines):
-            header_lines.append("import pytest")
-
-        # Ensure imports for each tested function
+        # Collect all imports from items
+        all_imports = set()
         for item in items:
-            module_path = Path(item["file_path"]).with_suffix("").as_posix().replace("/", ".")
-            import_line = f"from {module_path} import {item['name']}"
-            if not any(import_line in line for line in lines):
-                header_lines.append(import_line)
-
             for imp in item.get("imports", []):
-                if not any(imp in line for line in lines):
-                    header_lines.append(imp)
+                all_imports.add(imp.strip())
+        # Ensure essential imports
+        all_imports.add("import pytest")
+        all_imports.add("from pathlib import Path")
 
-        if header_lines:
-            lines = header_lines + [""] + lines
+        # Normalize and merge
+        final_imports = normalize_imports(list(all_imports))
+        lines.extend(final_imports)
+        lines.append("")  # blank line after imports
 
+        # Add all test functions
         for item in items:
-            name = f"test_{item['name']}"
             code_lines = item["test_code"].strip().splitlines()
+            lines.extend(code_lines)
+            lines.append("")  # blank line between functions
 
-            if name in existing_funcs:
-                start, end = existing_funcs[name]
-                print(f"🔁 Replacing test '{name}' in {test_file}")
-                lines[start:end] = code_lines
-            else:
-                print(f"➕ Adding test '{name}' to {test_file}")
-                lines.extend(["", *code_lines])
-
-        test_file.write_text("\n".join(lines).strip() + "\n", encoding="utf-8")
+        # Write the final file (overwrite)
+        test_file.write_text("\n".join(lines).rstrip() + "\n", encoding="utf-8")
         print(f"✅ Updated {test_file}")
