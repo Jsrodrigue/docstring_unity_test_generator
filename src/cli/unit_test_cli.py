@@ -10,7 +10,7 @@ def scan_and_generate_tests(
     path: str = typer.Argument(..., help="Path to file or folder to scan for code"),
     project_path: str = typer.Argument(..., help="Root path of the project to index"),
     model_name: str = typer.Option(
-        "gpt-4o-mini",
+        "openai/gpt-oss-120b",
         "--model",
         "-m",
         help=f"Model to use ({', '.join(models)})",
@@ -24,14 +24,13 @@ def scan_and_generate_tests(
     ),
 ):
     """
-    Automatically scans a specified folder or file to generate pytest unit tests
-    using the selected model.
-
+    Scans a specified file or folder to automatically generate pytest unit tests using a selected model.
+    
     Args:
       path (str): File or folder containing Python code.
       project_path (str): Root path of the project to index (mandatory).
-      model_name (str): Model to use for test generation. Default: gpt-4o-mini.
-      names (str): Optional comma-separated list of function or class names.
+      model_name (str): Model to use for test generation. Default is 'gpt-4o-mini'.
+      names (str): Optional comma-separated list of function or class names to limit test generation.
     """
     if model_name not in models:
         typer.echo(f"❌ Invalid model '{model_name}'. Available: {', '.join(models)}")

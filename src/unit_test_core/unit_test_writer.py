@@ -18,11 +18,16 @@ Output the entire corrected Python file as a string. Do not add explanations or 
 
 class UnitTestWriterWithReview:
     """
-    Writes pytest test files for a project and optionally reviews the code
-    using an LLM agent before writing.
+    Writes pytest test files for a project and optionally reviews the code using an LLM agent before writing.
     """
 
     def __init__(self, model_name: str = "gpt-4o-mini"):
+        """
+        Initializes the UnitTestWriterWithReview with the specified model name. The default model is 'gpt-4o-mini'.
+        
+        Args:
+          model_name (str): The name of the language model to use for code fixing.
+        """
         self.model_name = model_name
         self.fixer_agent = UnitTestFixerAgent(name="unit_test_fixer",
                                               model_name=model_name, 
@@ -30,6 +35,15 @@ class UnitTestWriterWithReview:
 
     @staticmethod
     def normalize_imports(import_lines: List[str]) -> List[str]:
+        """
+        Normalizes a list of import statements by grouping them into 'import' and 'from ... import' formats, ensuring no duplicates.
+        
+        Args:
+          import_lines (List[str]): A list of import lines to normalize.
+        
+        Returns:
+          List[str]: A sorted list of normalized import lines.
+        """
         import_map = defaultdict(set)  # module -> set of names
         raw_imports = set()
         for line in import_lines:
@@ -49,7 +63,15 @@ class UnitTestWriterWithReview:
 
     async def _review_code(self, code: str, project_path: str, original_path: str) -> str:
         """
-        Pass the full test file content to the agent for review and correction.
+        Submits the test file content for review and correction by the fixer agent.
+        
+        Args:
+          code (str): The full content of the test file.
+          project_path (str): The path to the project.
+          original_path (str): The original path of the test file.
+        
+        Returns:
+          str: The corrected version of the test file content.
         """
         corrected_code = await self.fixer_agent.fix_tests(code, str(project_path), str(original_path))
         return corrected_code
@@ -62,8 +84,13 @@ class UnitTestWriterWithReview:
         review: bool = True
     ):
         """
-        Create or update pytest test files in a mirrored 'tests/' directory.
-        Optionally review and fix the code using an LLM agent.
+        Creates or updates pytest test files in a mirrored 'tests/' directory based on the results provided. Optionally reviews and fixes the generated code using an LLM agent.
+        
+        Args:
+          results (List[Dict]): A list of test results containing file paths and test code.
+          project_path (str): The path to the project root.
+          tests_root (str, optional): The root directory for test files, defaulting to 'tests'.
+          review (bool, optional): A flag indicating whether to review and fix the code, default is True.
         """
         project_path = Path(project_path).resolve()
         tests_root = Path(tests_root)

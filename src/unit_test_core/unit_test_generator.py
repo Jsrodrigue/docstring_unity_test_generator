@@ -18,11 +18,14 @@ class UnitTestGenerationManager(BaseGenerationManager):
 
     def __init__(self, model_name: str = "gpt-4o-mini", project_path: Path = None):
         """
-        Initializes the manager with the agent and project indexer.
-
+        Initializes the UnitTestGenerationManager with the specified model and project path.
+        
         Args:
-            model_name (str): Model used for generation.
-            project_path (Path): Root path of the project to index and mirror.
+            model_name (str): The model to be used for code generation.
+            project_path (Path): The root path of the project to index and mirror.
+        
+        Raises:
+            ValueError: If project_path is None, a ValueError is raised.
         """
         if project_path is None:
             raise ValueError("❌ 'project_path' is required for UnitTestGenerationManager.")

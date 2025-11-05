@@ -34,7 +34,7 @@ def scan_and_generate(
       path (str): The file or folder path to scan for docstrings.
       model_name (str): The name of the model to use for generating docstrings. Default is 'gpt-4o-mini'.
       names (str): A comma-separated list of function or class names to specifically process. This is optional.
-      project (str): The root path of the project to index, which is also optional.
+      project_path (str): The root path of the project to index, which is also optional.
     
     Raises:
       Exit: If the provided model name is invalid.

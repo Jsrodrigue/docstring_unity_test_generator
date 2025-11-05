@@ -2,19 +2,22 @@ from src.core_base.agents.base_agents import BaseCodeAgent
 
 class UnitTestFixerAgent(BaseCodeAgent):
     """
-    Agent that takes generated pytest code and fixes any syntax errors, missing imports,
-    or other issues, returning corrected, runnable code.
+    Agent that takes generated pytest code and fixes any syntax errors, missing imports, or other issues, returning corrected, runnable code.
     """
 
     async def fix_tests(self, test_code: str, project_path: str, original_path: str) -> str:
         """
-        Input the test code and output the corrected version.
+        Review and correct the generated pytest code.
+        
+        This method reviews the provided test code, correcting any syntax errors and ensuring the code is runnable with pytest.
         
         Args:
-            test_code (str): The generated pytest code to review/fix.
+          test_code (str): The generated pytest code to review/fix.
+          project_path (str): The absolute path to the project, used for inferring correct import statements.
+          original_path (str): The absolute path to the original test file, used for context.
         
         Returns:
-            str: The corrected pytest code.
+          str: The corrected pytest code.
         """
         prompt = f"""
                     You are an expert Python developer.

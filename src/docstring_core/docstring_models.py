@@ -4,7 +4,7 @@ class DocstringOutput(BaseModel):
     """
     A model representing the output from the LLM for Python functions and classes.
     
-    This model includes the name of the function or class, the suggested docstring, and the path to the file for unique identification.
+    This model includes the name of the function or class, the suggested docstring text, and the path to the file for unique identification.
     
     Attributes:
       name (str): The name of the function or class.

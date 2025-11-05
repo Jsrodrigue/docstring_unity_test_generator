@@ -10,7 +10,21 @@ async def execute_in_path(
     target_names: Optional[List[str]] = None,
     item_name: str = "items",
 ):
-    """Ejecutor genérico para docstrings o unit tests."""
+    """
+    Asynchronously executes a function in the specified path and writes the results using another function.
+    
+    Args:
+      path (str): The filesystem path where the operation will be executed.
+      generate_func (Callable[..., Any]): A callable that generates results based on the execution context.
+      write_func (Callable[..., Any]): A callable that writes the generated results to the specified location.
+      model_name (str, optional): The name of the model to use for generation, defaults to 'gpt-4o-mini'.
+      project_path (Optional[str], optional): An optional path to the project context.
+      target_names (Optional[List[str]], optional): A list of target names to filter results, if any.
+      item_name (str, optional): A label for the items being processed, defaults to 'items'.
+    
+    Returns:
+      None: This function does not return any value, it performs actions directly.
+    """
     path_obj = Path(path).resolve()
     if not path_obj.exists():
         print(f"[WARN] {path} not found.")

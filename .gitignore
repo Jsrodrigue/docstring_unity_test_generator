@@ -15,6 +15,3 @@ wheels/
 
 # Index
 .code_index/
-
-tests/
-makefile

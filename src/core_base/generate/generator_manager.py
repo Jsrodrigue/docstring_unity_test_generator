@@ -19,6 +19,13 @@ class BaseGenerationManager:
     agent_class: Type[BaseCodeGenerationAgent]
 
     def __init__(self, model_name: str = "gpt-4o-mini", project_path: Optional[Path] = None):
+        """
+        Initialize the BaseGenerationManager with a specified model name and project path.
+        
+        Args:
+          model_name (str): The name of the model to use for code generation, default is 'gpt-4o-mini'.
+          project_path (Optional[Path]): The path to the project for which code items will be indexed.
+        """
         self.project_path = project_path
         self.indexer = None
 

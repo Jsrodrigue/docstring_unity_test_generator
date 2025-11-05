@@ -7,7 +7,18 @@ from src.docstring_core.docstring_writer import write_docstrings
 # ============================================================
 
 async def gradio_scan_and_generate(folder_path, model, names="", project_path=None):
-    """Scan folder and generate docstrings."""
+    """
+    Scan a folder and generate docstrings for the files found within.
+    
+    Args:
+      folder_path (str): The path to the folder to scan for items.
+      model (str): The model name to use for generating docstrings.
+      names (str, optional): Comma-separated string of names to filter generated docstrings. Defaults to an empty string.
+      project_path (str, optional): The path to the project directory. If None, defaults to the current path.
+    
+    Returns:
+      tuple: A tuple containing the original docstring, generated docstring, source path, index, results list, and a status message.
+    """
     target_names = [n.strip() for n in names.split(",")] if names else None
 
     results: list[dict] = await generate_docstring_from_path_dict(
@@ -35,11 +46,31 @@ async def gradio_scan_and_generate(folder_path, model, names="", project_path=No
     )
 
 async def async_write_docstrings(file_path: Path, items: list[dict]):
-    """Async wrapper for write_docstrings."""
+    """
+    Asynchronous wrapper for the function that writes multiple docstrings to a Python file.
+    
+    Args:
+      file_path (Path): The path to the Python file where docstrings should be written.
+      items (list[dict]): A list of dictionaries where each dictionary contains a name and a docstring for the items to update.
+    
+    Returns:
+      None
+    """
     await write_docstrings(file_path, items)
 
 async def next_item(action: str, edited_text: str, results: list[dict], index: int):
-    """Handle Accept / Skip actions and navigate to the next item."""
+    """
+    Handle Accept or Skip actions and navigate to the next item in the results list.
+    
+    Args:
+      action (str): The action to take, either 'Accept' or 'Skip'.
+      edited_text (str): The edited text for the current item, unused in this function.
+      results (list[dict]): A list of dictionaries containing items with their respective data.
+      index (int): The current index of the item in the results to process.
+    
+    Returns:
+      tuple: A tuple containing the original docstring, the processed docstring, the full source code, the updated index, results list, and a status message.
+    """
     if not results or index >= len(results):
         return "", "", "", index, results, "❌ No items to process."
 
@@ -68,7 +99,17 @@ async def next_item(action: str, edited_text: str, results: list[dict], index: i
     )
 
 async def accept_all(_, results: list[dict], index: int):
-    """Accept all remaining docstrings."""
+    """
+    Accept all remaining docstrings in the results list starting from the current index.
+    
+    Args:
+      _ (str): An unused parameter.
+      results (list[dict]): A list of dictionaries containing items with their respective data.
+      index (int): The index from which to start accepting docstrings.
+    
+    Returns:
+      tuple: A tuple containing an empty string, an empty string, an empty string, the count of accepted items, the updated results list, and a status message.
+    """
     if not results or index >= len(results):
         return "", "", "", index, results, "❌ No items to process."
 

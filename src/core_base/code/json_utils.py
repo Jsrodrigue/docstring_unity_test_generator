@@ -4,7 +4,9 @@ import re
 
 def safe_json_loads(text: str):
     """
-    Attempt to parse a JSON string, correcting common formatting mistakes. This function removes trailing commas and certain unwanted characters before attempting to load the JSON.
+    Attempt to parse a JSON string while correcting common formatting mistakes.
+    
+    This function removes trailing commas and certain unwanted characters before attempting to load the JSON.
     
     Args:
       text (str): The JSON string to be parsed.
