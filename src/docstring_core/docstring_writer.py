@@ -2,7 +2,7 @@ import ast
 from pathlib import Path
 from typing import List, Dict
 
-def write_docstrings(file_path: Path, items: List[Dict]):
+async def write_docstrings(file_path: Path, items: List[Dict]):
     """
     Update multiple docstrings in a Python file based on provided dictionary entries.
     

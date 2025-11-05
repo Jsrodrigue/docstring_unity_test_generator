@@ -14,6 +14,12 @@ class ProjectIndexer:
     """
 
     def __init__(self, project_path: Path):
+        """
+        Initializes the ProjectIndexer with the given project path.
+        
+        Args:
+          project_path (Path): The path to the Python project to index.
+        """
         self.project_path = project_path.resolve()
 
         # Separate folders for eax index
@@ -34,11 +40,26 @@ class ProjectIndexer:
                 self.file_hashes = pickle.load(f)
 
     def _compute_file_hash(self, file_path: Path) -> str:
-        """Compute SHA1 hash of a single file."""
+        """
+        Computes the SHA1 hash of the specified file.
+        
+        Args:
+          file_path (Path): The path to the file to be hashed.
+        
+        Returns:
+          str: The SHA1 hash of the file as a hexadecimal string.
+        """
         return hashlib.sha1(file_path.read_bytes()).hexdigest()
 
     def load_or_build(self):
-        """Load index incrementally or rebuild changed/new files."""
+        """
+        Loads the index incrementally or rebuilds it by processing changed or new files.
+        
+        Uses the CodeExtractorTool to extract code items from Python files found in the project path, and updates the index accordingly. It also manages the file hashes to track changes.
+        
+        Returns:
+          None
+        """
         extractor = CodeExtractorTool(self.project_path)
 
         created = 0
@@ -105,15 +126,48 @@ class ProjectIndexer:
     # Query methods
     # ------------------------
     def query_by_name(self, name: str) -> List[CodeItem]:
+        """
+        Queries the index for CodeItems matching the given name.
+        
+        Args:
+          name (str): The name of the code item to search for.
+        
+        Returns:
+          List[CodeItem]: A list of CodeItems that match the provided name.
+        """
         return [item for item in self.index if item.name == name]
 
     def query_by_import(self, import_name: str) -> List[CodeItem]:
+        """
+        Queries the index for CodeItems that import the specified module.
+        
+        Args:
+          import_name (str): The name of the module to search for in imports.
+        
+        Returns:
+          List[CodeItem]: A list of CodeItems that import the specified module.
+        """
         return [item for item in self.index if any(import_name in i for i in item.imports)]
 
     def query_by_file(self, file_path: Path) -> List[CodeItem]:
+        """
+        Queries the index for CodeItems located in the specified file.
+        
+        Args:
+          file_path (Path): The path to the file to search for CodeItems.
+        
+        Returns:
+          List[CodeItem]: A list of CodeItems that are located in the specified file.
+        """
         return [item for item in self.index if item.file_path == file_path.resolve()]
 
     def all_items(self) -> List[CodeItem]:
+        """
+        Returns all CodeItems in the current index.
+        
+        Returns:
+          List[CodeItem]: A list of all CodeItems indexed.
+        """
         return self.index
 
 

@@ -4,13 +4,16 @@ from src.core_base.agents.base_agents import BaseCodeGenerationAgent
 from src.core_base.indexer.project_indexer import ProjectIndexer
 from src.core_base.generate.generate_utils import generate_outputs_for_items
 from src.core_base.code.code_extractor import get_filtered_code_items
-from src.core_base.code.code_model import CodeItem
 import os
 
 class BaseGenerationManager:
     """
-    Manager for generating structured code outputs using a specific agent.
-    Supports generation per file to control token usage in large projects.
+    Manager for generating structured code outputs using a specific code generation agent.
+    
+    This class supports generation per file to control token usage in large projects, ensuring efficient processing of multiple code items.
+    
+    Attributes:
+      agent_class (Type[BaseCodeGenerationAgent]): The class of the agent used for code generation.
     """
 
     agent_class: Type[BaseCodeGenerationAgent]
@@ -33,7 +36,14 @@ class BaseGenerationManager:
         target_names: Optional[List[str]] = None
     ) -> List[dict]:
         """
-        Generate outputs for all CodeItems in a single file.
+        Generate structured outputs for all CodeItems in a specified Python file.
+        
+        Args:
+          file_path (str): The path to the Python file to process.
+          target_names (Optional[List[str]]): List of function/class names to filter outputs.
+        
+        Returns:
+          List[dict]: A list of dictionaries containing the generated outputs, one for each CodeItem.
         """
         path_obj = Path(file_path).resolve()
         if not path_obj.exists():
@@ -54,8 +64,16 @@ class BaseGenerationManager:
         target_names: Optional[List[str]] = None
     ) -> List[dict]:
         """
-        Generate outputs for all Python files under a folder.
-        Iterates file by file to control token usage.
+        Generate structured outputs for all Python files under the specified folder path.
+        
+        This method iterates through each file to control token usage during the generation process.
+        
+        Args:
+          path (str): The path to the folder containing Python files.
+          target_names (Optional[List[str]]): List of function/class names to filter outputs.
+        
+        Returns:
+          List[dict]: A list of dictionaries containing generated outputs from all processed files.
         """
         path_obj = Path(path).resolve()
         if not path_obj.exists():

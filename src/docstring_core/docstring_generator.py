@@ -49,22 +49,3 @@ async def generate_docstring_from_path_dict(
     project_path_obj = Path(project_path) if project_path else None
     manager = DocstringGenerationManager(model_name=model_name, project_path=project_path_obj)
     return await manager.generate_for_path(path, target_names=target_names)
-
-
-# -----------------------------
-# Quick test / CLI usage
-# -----------------------------
-import asyncio
-
-if __name__ == "__main__":
-    import sys
-    path = sys.argv[1] if len(sys.argv) > 1 else "examples/"
-    project_root = sys.argv[2] if len(sys.argv) > 2 else None
-
-    print(f"🔍 Running docstring generation on: {path}")
-    results = asyncio.run(generate_docstring_from_path_dict(path, project_path=project_root))
-    print(f"✅ Generated {len(results)} docstring(s)")
-    for r in results:
-        print(f"\nFile: {r['file_path']}")
-        print(f"Imports: {r['imports']}")
-        print(f"--- Docstring Output for {r['name']} ---\n{r['docstring']}")

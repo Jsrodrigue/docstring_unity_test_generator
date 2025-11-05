@@ -1,15 +1,13 @@
 import typer
-from src.docstring_core.docstring_cli import docstring_app
-#from src.cli.unity_cli import app as unity_app   #TODO
+from src.cli.docstring_cli import docstring_app
+from src.cli.unit_test_cli import unit_test_app   
 
 app = typer.Typer(help="LLM-based developer tools CLI")
 
-# register subcomands
+# Register subcommands
 app.add_typer(docstring_app, name="docstring")
-#app.add_typer(unity_app, name="unity") #TODO
+app.add_typer(unit_test_app, name="unit_test")  
 
 if __name__ == "__main__":
     app()
-
-############# usage ###############
-# Docstring: $ python -m src.cli docstring scan-and-generate examples/ --names greet
+    

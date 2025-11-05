@@ -29,15 +29,14 @@ async def generate_outputs_for_items(
     for out_item in generated:
         # Find matching generated item
         match = next((item for item in items if item.name == out_item.name), None)
+        if match:
+            out_item_dict = out_item.__dict__.copy()
 
-        out_item_dict = out_item.__dict__.copy()
+            # Add or override key metadata
+            out_item_dict["file_path"] = str(match.file_path)
+            out_item_dict["source"] = match.source
+            out_item_dict["original_docstring"] = match.docstring
 
-        # Add or override key metadata
-        out_item_dict["name"] = match.name
-        out_item_dict["file_path"] = str(match.file_path)
-        out_item_dict["source"] = match.source
-        out_item_dict["original_docstring"] = match.docstring
-
-        results.append(out_item_dict)
+            results.append(out_item_dict)
 
     return results

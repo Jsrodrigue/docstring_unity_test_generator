@@ -4,7 +4,7 @@ from constants import models
 
 docstring_app = typer.Typer(help="Python docstring auto-generator and updater")
 
-@docstring_app.command()
+@docstring_app.command("generate")
 def scan_and_generate(
     path: str = typer.Argument(..., help="Path to file or folder to scan"),
     model_name: str = typer.Option(
@@ -20,7 +20,7 @@ def scan_and_generate(
         "-n",
         help="Comma-separated list of function/class names to process (e.g. 'foo,bar,BazClass')",
     ),
-    project: str = typer.Option(
+    project_path: str = typer.Option(
         None,
         "--project",
         "-p",
@@ -28,8 +28,19 @@ def scan_and_generate(
     ),
 ):
     """
-    Automatically scan a folder or file and update docstrings using the selected model.
-    Can also process only specific functions or classes.
+    Automatically scans a specified folder or file to update docstrings using the selected model. This function can also filter the update process to specific functions or classes provided in the input.
+    
+    Args:
+      path (str): The file or folder path to scan for docstrings.
+      model_name (str): The name of the model to use for generating docstrings. Default is 'gpt-4o-mini'.
+      names (str): A comma-separated list of function or class names to specifically process. This is optional.
+      project (str): The root path of the project to index, which is also optional.
+    
+    Raises:
+      Exit: If the provided model name is invalid.
+    
+    Returns:
+      None: This function performs actions and does not return a value.
     """
     if model_name not in models:
         typer.echo(f"❌ Invalid model '{model_name}'. Available: {', '.join(models)}")
@@ -40,12 +51,12 @@ def scan_and_generate(
     typer.echo(f"🔍 Scanning {path} using {model_name}...")
     if target_names:
         typer.echo(f"🎯 Filtering for: {', '.join(target_names)}")
-    if project:
-        typer.echo(f"🏷 Using project index at: {project}")
+    if project_path:
+        typer.echo(f"🏷 Using project index at: {project_path}")
 
     execute_docstring_in_path(
         path=path,
         model_name=model_name,
         target_names=target_names,
-        project_path=project,  # for project indexer
+        project_path=project_path,  # for project indexer
     )

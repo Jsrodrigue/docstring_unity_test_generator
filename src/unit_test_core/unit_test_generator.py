@@ -7,7 +7,11 @@ from src.unit_test_core.unit_test_agent import UnitTestAgent
 class UnitTestGenerationManager(BaseGenerationManager):
     """
     Manager for generating unit tests from files or folders using a UnitTestAgent.
-    Requires a project_path to mirror the structure of the source code inside /tests.
+    
+    This manager requires a project_path to mirror the structure of the source code inside the /tests directory.
+    
+    Attributes:
+      agent_class (Type[UnitTestAgent]): The agent used for generating unit tests.
     """
 
     agent_class = UnitTestAgent
@@ -33,9 +37,18 @@ async def generate_unit_test_from_path_dict(
     project_path: Optional[str] = None
 ) -> List[dict]:
     """
-    Wrapper for generating unit tests from a file or folder.
-
-    'project_path' is mandatory to correctly mirror the directory structure in /tests.
+    Generates unit tests from a specified file or folder path.
+    
+    This function requires a valid project_path to correctly mirror the directory structure in the /tests directory.
+    
+    Args:
+      path (str): The path to the file or folder from which to generate unit tests.
+      model_name (str, optional): The name of the model to use for generation. Defaults to 'gpt-4o-mini'.
+      target_names (Optional[List[str]], optional): A list of specific target names to generate tests for. Defaults to None.
+      project_path (Optional[str], optional): The root path of the project to index and mirror. Defaults to None.
+    
+    Returns:
+      List[dict]: A list of generated unit test definitions.
     """
     if not project_path:
         raise ValueError("[ERROR] 'project_path' is required to generate mirrored test files.")
@@ -46,4 +59,5 @@ async def generate_unit_test_from_path_dict(
 
     project_path_obj = Path(project_path)
     manager = UnitTestGenerationManager(model_name=model_name, project_path=project_path_obj)
-    return await manager.generate_for_path(path, target_names=target_names)
+    results = await manager.generate_for_path(path, target_names=target_names)
+    return results

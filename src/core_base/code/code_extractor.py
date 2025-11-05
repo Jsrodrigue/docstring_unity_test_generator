@@ -9,10 +9,8 @@ from src.core_base.code.extractor_utils import _get_signature_from_node
 class CodeExtractorTool:
     """
     Extracts Python functions, methods, and classes from source files or directories.
-
-    This tool walks through the abstract syntax tree (AST) of each Python file
-    to collect structured information about each code entity (function, method, or class),
-    including its name, type, source code, docstring, file location, imports, and signature.
+    
+    This tool walks through the abstract syntax tree (AST) of each Python file to collect structured information about each code entity (function, method, or class), including its name, type, source code, docstring, file location, imports, and signature.
     """
 
     def __init__(self, base_path: Path):
@@ -66,15 +64,13 @@ class CodeExtractorTool:
     def extract_from_file(self, file_path: Path) -> List[CodeItem]:
         """
         Extract CodeItem objects from a single Python file.
-
-        This method scans the file for all top-level functions, classes,
-        and methods inside classes, and collects their metadata.
-
+        
+        This method scans the file for all top-level functions, classes, and methods inside classes, and collects their metadata.
+        
         Args:
-            file_path (Path): The Python file to analyze.
-
+          file_path (Path): The Python file to analyze.
         Returns:
-            List[CodeItem]: A list of extracted CodeItem objects.
+          List[CodeItem]: A list of extracted CodeItem objects.
         """
         print(f"[INFO] Extracting info from file {file_path} ...")
         with open(file_path, "r", encoding="utf-8") as f:
@@ -118,8 +114,10 @@ class CodeExtractorTool:
 
 def extract_from_path(self) -> List[CodeItem]:
     """
-    Extract CodeItem objects from all Python files under the base path (recursively),
-    ignoring virtual environments, caches, and hidden folders.
+    Extract CodeItem objects from all Python files under the base path (recursively), ignoring virtual environments, caches, and hidden folders.
+    
+    Returns:
+      List[CodeItem]: A list of extracted CodeItem objects from all relevant Python files.
     """
     py_files = [
         f for f in self.base_path.rglob("*.py")
@@ -138,12 +136,11 @@ def extract_from_path(self) -> List[CodeItem]:
 def extract_functions_and_classes(path: Union[str, Path]) -> List[CodeItem]:
     """
     Extract functions, methods, and classes from a Python file or directory.
-
+    
     Args:
-        path (str | Path): Path to a Python file or a directory.
-
+      path (Union[str, Path]): Path to a Python file or a directory.
     Returns:
-        List[CodeItem]: A list of CodeItem objects containing extracted code entities.
+      List[CodeItem]: A list of CodeItem objects containing extracted code entities.
     """
     path = Path(path).resolve()
     if not path.exists():
@@ -164,13 +161,12 @@ def extract_functions_and_classes(path: Union[str, Path]) -> List[CodeItem]:
 def get_filtered_code_items(file_path: Path, target_names: Optional[List[str]] = None) -> List[CodeItem]:
     """
     Extract and optionally filter CodeItem objects by name.
-
+    
     Args:
-        file_path (Path): Path to the Python file.
-        target_names (List[str], optional): List of function/class names to keep.
-
+      file_path (Path): Path to the Python file.
+      target_names (Optional[List[str]]): List of function/class names to keep.
     Returns:
-        List[CodeItem]: Filtered list of CodeItem objects.
+      List[CodeItem]: Filtered list of CodeItem objects.
     """
     items = extract_functions_and_classes(file_path)
     if target_names:

@@ -1,55 +1,38 @@
 from pathlib import Path
-import asyncio
-from typing import Callable, List, Dict, Optional
+from typing import Callable, List, Dict, Optional, Any
 
-# ---------------- Generic folder scanner ----------------
-def execute_in_path(
+async def execute_in_path(
     path: str,
-    generate_func: Callable[[str, str, Optional[List[str]], Optional[str]], asyncio.Future],
-    write_func: Callable[[Path, List[dict]], None],
+    generate_func: Callable[..., Any],
+    write_func: Callable[..., Any],
     model_name: str = "gpt-4o-mini",
-    item_name: str = "items",
+    project_path: Optional[str] = None,
     target_names: Optional[List[str]] = None,
-    project_path: Optional[str] = None
+    item_name: str = "items",
 ):
-    """
-    Generic function to scan a folder (or file), optionally filter items by name,
-    generate items using a model, group them per file, and write them using a writer function.
-
-    Args:
-        path (str): Path to a Python file or folder to scan.
-        generate_func (Callable): Async function with signature 
-            (path:str, model_name:str, target_names:Optional[List[str]], project_path:Optional[str]) -> list of dict.
-        write_func (Callable): Function with signature (file_path:Path, items:List[dict]) -> None.
-        model_name (str, optional): Model to use for generation.
-        item_name (str, optional): Friendly name for logging (e.g., 'docstrings', 'unit tests').
-        target_names (Optional[List[str]]): Names of functions/classes to filter and generate.
-        project_path (Optional[str]): Root path of the project to index.
-    """
+    """Ejecutor genérico para docstrings o unit tests."""
     path_obj = Path(path).resolve()
     if not path_obj.exists():
-        print(f"[WARNING] The path '{path}' does not exist.")
+        print(f"[WARN] {path} not found.")
         return
 
-    print(f"🔍 Scanning {path_obj} for Python files...")
-
-    # Generate items (async)
-    results: List[dict] = asyncio.run(generate_func(str(path_obj), model_name, target_names, project_path))
-
+    results = await generate_func(str(path_obj), model_name, target_names, project_path)
     if not results:
-        print(f"[INFO] No {item_name} were generated.")
+        print(f"[INFO] {item_name} not generated.")
         return
 
-    # Group items per file
     grouped: Dict[str, List[dict]] = {}
     for item in results:
         grouped.setdefault(item["file_path"], []).append(item)
 
-    print(f"[INFO] Generating {item_name} for {len(grouped)} files...")
-
-    # Write items
+    # Detecta tipo de writer según su firma
     for file_path, items in grouped.items():
-        write_func(Path(file_path), items)
-        print(f"[INFO] Updated {item_name} in {file_path}")
+        try:
+            await write_func(Path(file_path), items, model_name=model_name, project_path=project_path)
+        except TypeError:
+            # Caso: writer que agrupa internamente (como UnitTestWriterWithReview)
+            await write_func(results, project_path=project_path, model_name=model_name)
+            break  # Ya procesa todo de una vez
+        print(f"✅ {item_name.capitalize()} writen in {file_path}")
 
-    print(f"[INFO] All {item_name} updated successfully!")
+    print(f"[OK] {item_name.capitalize()} successfuly actualized.")

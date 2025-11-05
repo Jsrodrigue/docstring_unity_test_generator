@@ -10,16 +10,18 @@ Task:
 - Avoid any duplicate imports.
 - Always use standard formatting: 'import X' or 'from X import Y'.
 - If multiple functions require the same import, only include it once.
+- Import the original function by extracting from the given path.
 
 Output format:
 - Return a JSON array of objects, each with:
-  - "name": function name
+  - "name": The name of the original function to be tested
   - "file_path": path of the file containing the function
-  - "test_code": full pytest code as a string
+  - "test_code": full pytest code as a string without imports
   - "imports": list of normalized import statements (no duplicates, all required)
 
 - Do not include markdown, triple quotes, explanations, or comments.
 - Ensure the code is valid Python and directly runnable with pytest.
+- Include all the needed imports only in the imports list
 """
 
 PROMPT_TEMPLATE_TESTS = """

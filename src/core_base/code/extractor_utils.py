@@ -4,9 +4,14 @@ import ast
 def extract_symbols_from_import(import_line: str) -> list[str]:
     """
     Extract imported symbol names from an import line.
-    Example:
-        'from module import A, B' -> ['A', 'B']
-        'import x, y' -> ['x', 'y']
+    
+    This function takes a string representation of an import statement and returns a list of symbol names that are imported.
+    
+    Args:
+      import_line (str): A string of the import statement, e.g., 'from module import A, B' or 'import x, y'.
+    
+    Returns:
+      list[str]: A list of symbol names extracted from the import statement.
     """
     from_match = re.match(r"from\s+[^\s]+\s+import\s+(.+)", import_line)
     if from_match:
@@ -20,10 +25,14 @@ def extract_symbols_from_import(import_line: str) -> list[str]:
 def _get_signature_from_node(node: ast.AST) -> str:
     """
     Build a human-readable function or class signature from the AST node.
-
-    Examples:
-        def add(a, b)        -> "add(a, b)"
-        class MyClass(Base)  -> "class MyClass(Base)"
+    
+    This function analyzes an Abstract Syntax Tree (AST) node representing a function or class and returns its signature as a string.
+    
+    Args:
+      node (ast.AST): An AST node representing a function or class.
+    
+    Returns:
+      str: A string representation of the function or class signature, e.g., 'add(a, b)' for a function or 'class MyClass(Base)' for a class.
     """
     if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
         args = []

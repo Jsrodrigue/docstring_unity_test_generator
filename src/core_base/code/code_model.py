@@ -28,6 +28,19 @@ class CodeItem:
         signature: Optional[str] = None,
         args: Optional[List[str]] = None,
     ):
+        """
+        Initializes a CodeItem instance with the specified attributes.
+        
+        Args:
+          name (str): The name of the code item.
+          type (str): The type of the code item; can be 'function', 'method', or 'class'.
+          source (str): The source code of the item.
+          docstring (Optional[str]): The documentation string of the code item.
+          file_path (Union[str, Path]): The file path where the code item is located.
+          imports (Optional[List[str]]): A list of imported modules or functions used by the code item.
+          signature (Optional[str]): The function or class signature.
+          args (Optional[List[str]]): A list of argument names if the item is a function or method.
+        """
         self.name = name
         self.type = type  # "function", "method", or "class"
         self.source = source

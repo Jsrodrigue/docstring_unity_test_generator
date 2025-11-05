@@ -5,6 +5,7 @@ build/
 dist/
 wheels/
 *.egg-info
+.pytest_cache/
 
 # Virtual environments
 .venv
@@ -14,3 +15,6 @@ wheels/
 
 # Index
 .code_index/
+
+tests/
+makefile

@@ -26,33 +26,36 @@ def add(a, b):
 
 def multiply(a, b, c=1):
     """
-    Return the product of two or three numbers.
+    Multiply three numbers together, with the third number being optional and defaulting to 1.
     
     Args:
       a (int or float): The first number.
       b (int or float): The second number.
-      c (int or float, optional): The third number to multiply, defaults to 1.
+      c (int or float, optional): The third number, default is 1.
     Returns:
-      int or float: The product of the numbers.
+      int or float: The product of the three numbers.
     """
     return a * b * c
 
 
 class Rectangle:
     """
-    Represents a rectangle defined by its width and height.
+    Represents a rectangle with a given width and height.
+    
+    This class provides methods to calculate the area and perimeter of the rectangle, as well as a method to scale its dimensions.
     
     Attributes:
-      width (float): Width of the rectangle.
-      height (float): Height of the rectangle.
+      width (float): The width of the rectangle.
+      height (float): The height of the rectangle.
     """
     def __init__(self, width: float, height: float):
+      
         """
-        Initialize a Rectangle instance.
+        Initialize a new Rectangle instance with the specified width and height.
         
         Args:
-          width (float): Width of the rectangle.
-          height (float): Height of the rectangle.
+          width (float): The width of the rectangle.
+          height (float): The height of the rectangle.
         """
         self.width = width
         self.height = height
@@ -77,10 +80,10 @@ class Rectangle:
 
     def scale(self, factor: float):
         """
-        Scale the rectangle by a given factor.
+        Scale the rectangle's dimensions by the given factor.
         
         Args:
-          factor (float): The factor to scale the rectangle by.
+          factor (float): The factor to scale the rectangle's dimensions by.
         """
         self.width *= factor
         self.height *= factor
