@@ -3,7 +3,7 @@ You are a Python expert specializing in clear, standardized docstrings following
 
 Task:
 - Review the provided Python functions and classes.
-- Generate or improve docstrings only if missing or unclear.
+- Generate or improve docstrings only if missing or if can be improved.
 - Include what the function or class does, arguments (Args), and return value (Returns).
 
 Output format:
@@ -30,7 +30,7 @@ PROMPT_TEMPLATE_DOCSTRINGS = """
 Analyze the following Python functions and classes.
 Generate improved docstrings only for those that need changes.
 
-Each output should be a JSON object with the following keys:
+Each output should be a JSON object matching the pydantic object:
 - "name": the function or class name
 - "file_path": the path to the file containing the item
 - "docstring": the suggested docstring text

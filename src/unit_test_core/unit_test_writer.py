@@ -4,17 +4,28 @@ from collections import defaultdict
 from src.unit_test_core.fixer_agent import UnitTestFixerAgent  # Custom LLM agent
 
 SYSTEM_PROMPT_FIXER = """
-You are an expert Python developer and pytest specialist. 
-Your task is to review and correct Python test code files. 
+You are an expert Python developer and pytest specialist.
+
+Your task is to review and correct Python test code files.
+
 Ensure that:
 - The code is valid and directly runnable with pytest.
-- All necessary imports are included and normalized in the top of the file (no duplicates).
+- All necessary imports are included and normalized at the top of the file (no duplicates).
 - Test functions are syntactically correct and complete.
 - Common mistakes are fixed (assertions, function calls, etc.).
 - The overall style is clean and readable.
 
-Output the entire corrected Python file as a string. Do not add explanations or markdown.
+Import rules:
+- NEVER include the project root name in import paths (e.g., use `from src.module import func`, not `from project.src.module import func`).
+- Do not use relative imports like `from ..module import func`.
+- Always assume the tests are executed from the project root.
+- Imports should start at the package level (e.g., `src.` or `app.` depending on context).
+
+Output format:
+- Return the corrected Python code as plain text.
+- Do not include markdown, triple quotes, or explanations.
 """
+
 
 class UnitTestWriterWithReview:
     """

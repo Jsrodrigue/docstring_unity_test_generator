@@ -4,7 +4,12 @@
 Automate docstring and unit test creation for Python projects using LLMs. Provides both a CLI and a web UI so teams can quickly increase documentation quality and test coverage with minimal manual work.
 
 
-Generates docstrings and pytest tests from your source code using configurable LLMs. Try the web UI or run it from the CLI.
+## Features
+- Safe docstring insertion (Injects only the docstring)
+- Mirrors your project tree into `tests/` and creates pytest-style test files.
+- CLI (Typer) + Web UI (Gradio).
+- Modular LLM execution layer; swap or add models easily.
+- Configurable: select models and specific functions/classes.
 
 ## Why it matters
 - Save developer time by auto-creating high-quality docstrings.
@@ -73,17 +78,36 @@ python -m src.cli unit_test generate src/utils /home/user/project -n add,subtrac
 
 ## Screenshots
 
+<div style="text-align:center;">
+
+  <figure style="margin:30px 0;">
+    <img src="screenshots/docstring_ui.png" alt="Docstring UI" width="750" />
+    <figcaption style="font-size:1.1rem;font-weight:bold;margin-top:10px;color:#444;">
+      Screenshot of the Docstring Interface
+    </figcaption>
+  </figure>
+
+  <figure style="margin:30px 0;">
+    <img src="screenshots/test_ui.png" alt="Test UI" width="750" />
+    <figcaption style="font-size:1.1rem;font-weight:bold;margin-top:10px;color:#444;">
+      Screenshot of the Test Interface
+    </figcaption>
+  </figure>
+
+</div>
 
 
-## Demo video
 
 
-## Features
-- Safe docstring insertion (Injects only the docstring)
-- Mirrors your project tree into `tests/` and creates pytest-style test files.
-- CLI (Typer) + Web UI (Gradio).
-- Modular LLM execution layer; swap or add models easily.
-- Configurable: select models, specific functions/classes, and style (Google/NumPy).
+
+## Demo video for CLI usage
+
+
+## Inspiration & Educational Context
+
+This project was inspired by the **Udemy course "AI Engineer Core Track: LLM Engineering, RAG, QLoRA, Agents" by Ed Donner**.  
+It was developed as a **portfolio project** to demonstrate practical skills in LLM-based automation, agent design, and prompt engineering.  
+The implementation uses **only the official OpenAI SDK**, showcasing a low-dependency, clean, and extensible approach to integrating language models into developer tools.
 
 ## Installation
 
@@ -101,7 +125,7 @@ python -m venv .venv
 pip install -r requirements.txt
 ```
 
-If you prefer the `pyproject.toml` workflow, you can also use `uv` — but providing `requirements.txt` is recommended for quick testing.
+If you prefer the `pyproject.toml` workflow, you can also use `uv`.
 
 ### API Keys & Supported Models
 
@@ -135,7 +159,7 @@ This project uses a modular agent architecture where agents process Python files
 
 - **Docstring Agent** (single-agent flow)
   - Processes one file at a time using `CodeExtractorTool`
-  - For each function/class found, generates a Google/NumPy-style docstring
+  - For each function/class found, generates a docstring following PEP 257 conventions.
   - Returns a list of `DocstringOutput` generated content.
 
 - **Unit Test Pipeline** (two-agent flow: Generator → Reviewer)
@@ -173,7 +197,7 @@ This project uses a modular agent architecture where agents process Python files
 
 ## Run tests
 ```bash
-pytest -q
+python -m pytest tests/
 ```
 
 ## Project structure (high level)
@@ -185,15 +209,6 @@ pytest -q
 ## Indexing (ProjectIndexer)
 
 This project includes an incremental project indexer that scans your Python codebase and extracts "code items" (functions, classes, imports, etc.) for fast lookup and context. The indexer is implemented in `src/core_base/indexer/project_indexer.py` and provides an efficient workflow for large repositories.
-
-Key points:
-
-- Storage: index data is stored under the project directory in `.code_index/`:
-  - `.code_index/indexes/` — per-file pickles with extracted CodeItems (one `.pkl` per source file).
-  - `.code_index/hashes/file_hashes.pkl` — a mapping of file paths to SHA1 hashes used to detect changes.
-- Incremental updates: the indexer computes a SHA1 hash for each `.py` file and only reprocesses files that are new or whose hash changed. Deleted files are removed from the index folder.
-- Safe scanning: hidden folders and `__pycache__` are skipped when scanning the tree.
-
 
 ## License
 This project is licensed under the MIT License — see the `LICENSE` file in this repository for details.

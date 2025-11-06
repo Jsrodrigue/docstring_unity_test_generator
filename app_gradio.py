@@ -16,7 +16,7 @@ def build_docstring_tab():
         with gr.Group():
             with gr.Row():
                 folder_input = gr.Textbox(label="Folder path", placeholder="Path to your Python folder")
-                project_input = gr.Textbox(label="Project root path", placeholder="Root path (required for tests mirror)")
+                project_input = gr.Textbox(label="Project root path", placeholder="Root path (Optional for indexing)")
             with gr.Row():
                 model_selector = gr.Dropdown(label="Model", choices=models, value=models[0])
                 names_input = gr.Textbox(label="Names (comma-separated)", placeholder="e.g. foo,bar,BazClass")

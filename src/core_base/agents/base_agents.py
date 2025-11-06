@@ -6,7 +6,7 @@ from src.core_base.code.code_model import CodeItem
 from src.core_base.code.json_utils import safe_json_loads
 from src.core_base.indexer.project_indexer import ProjectIndexer
 from src.core_base.code.extractor_utils import extract_symbols_from_import
-
+from src.core_base.agents.agents_utils import _parse_to_models
 ###############################
 # Base Agent
 ###############################
@@ -194,27 +194,13 @@ class BaseCodeGenerationAgent(BaseCodeAgent):
         Generates structured output based on the provided code items.
         
         Args:
-            items (List[CodeItem]): The code items to process.
+          items (List[CodeItem]): The code items to process.
         
         Returns:
-            List[BaseModel]: A list of Pydantic objects (e.g., DocstringOutput or UnitTestOutput).
+          List[BaseModel]: A list of Pydantic objects (e.g., DocstringOutput or UnitTestOutput).
         """
         prompt = self._make_prompt(items)
 
-        def _parse_to_models(parsed):
-            """Convert JSON-like data into a list of Pydantic model instances."""
-            # Detecta automáticamente el tipo interno del modelo
-            try:
-                item_type = self.OutputModel.model_fields["items"].annotation.__args__[0]
-            except Exception:
-                print("⚠️ Could not infer item type from OutputModel, returning empty list")
-                return []
-
-            if isinstance(parsed, list):
-                return [item_type(**d) for d in parsed if isinstance(d, dict)]
-            if isinstance(parsed, dict) and "items" in parsed:
-                return [item_type(**d) for d in parsed["items"] if isinstance(d, dict)]
-            return []
 
         try:
             result = await self.run(prompt)
@@ -226,11 +212,11 @@ class BaseCodeGenerationAgent(BaseCodeAgent):
             # Caso 2: string JSON
             if isinstance(result, str):
                 parsed = safe_json_loads(result)
-                return _parse_to_models(parsed)
+                return _parse_to_models(self.OutputModel, parsed)
 
             # Caso 3: dict
             if isinstance(result, dict):
-                return _parse_to_models(result)
+                return _parse_to_models(self.OutputModel, result)
 
             print("⚠️ Unexpected result type:", type(result))
             return []
@@ -243,4 +229,4 @@ class BaseCodeGenerationAgent(BaseCodeAgent):
             self.agent.output_type = str
             result_text = await self.run(prompt)
             parsed = safe_json_loads(result_text)
-            return _parse_to_models(parsed)
+            return _parse_to_models(self.OutputModel, parsed)

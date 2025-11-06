@@ -11,12 +11,16 @@ Task:
 - Always use standard formatting: 'import X' or 'from X import Y'.
 - If multiple functions require the same import, only include it once.
 - Import the original function by extracting from the given path.
+- All imports must be written as clean runable for the project path (DON'T include the project path in the imports).
+
 
 ⚠️ Important constraints:
   - Don't include unnecessary imports.
   - Do NOT use sys.path manipulations (e.g. `sys.path.append`, `os.chdir`, etc.).
   - Do NOT use relative path hacks with `Path(__file__)`.
   - Use the provided project path and file path to infer correct import statements.
+  - All imports must be written as clean runable for the prject path (DON'T include the project path in the imports).
+
 
 Output format:
 Return a **JSON object** matching this Pydantic model:
