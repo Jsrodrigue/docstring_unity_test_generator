@@ -82,16 +82,10 @@ python -m src.cli unit_test generate src/utils /home/user/project -n add,subtrac
 
   <figure style="margin:30px 0;">
     <img src="screenshots/docstring_ui.png" alt="Docstring UI" width="750" />
-    <figcaption style="font-size:1.1rem;font-weight:bold;margin-top:10px;color:#444;">
-      Screenshot of the Docstring Interface
-    </figcaption>
   </figure>
 
   <figure style="margin:30px 0;">
     <img src="screenshots/test_ui.png" alt="Test UI" width="750" />
-    <figcaption style="font-size:1.1rem;font-weight:bold;margin-top:10px;color:#444;">
-      Screenshot of the Test Interface
-    </figcaption>
   </figure>
 
 </div>
