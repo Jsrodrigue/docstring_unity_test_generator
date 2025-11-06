@@ -16,6 +16,34 @@ Automate docstring and unit test creation for Python projects using LLMs. Provid
 - Produce realistic unit tests that mirror your project structure.
 - Keep your codebase well-documented and more maintainable, accelerating onboarding and code reviews.
 
+
+## Screenshots
+
+<p align="center">
+  <img src="screenshots/docstring_ui.png" alt="Docstring UI" width="750" />
+  <br/>
+  <strong>Screenshot of the Docstring Interface</strong>
+</p>
+
+---
+
+<p align="center">
+  <img src="screenshots/test_ui.png" alt="Test UI" width="750" />
+  <br/>
+  <strong>Screenshot of the Test Interface</strong>
+</p>
+
+## Demo video for CLI usage
+Watch a short demostration in how to use the CLI
+
+<p align="center">
+  <a href="https://youtu.be/4-6kulni4_Y" target="_blank">
+    <img src="https://img.youtube.com/vi/4-6kulni4_Y/maxresdefault.jpg" alt="Demo video for CLI usage" width="750" />
+  </a>
+  <br/>
+  <strong>Click the image to watch the demo on YouTube</strong>
+</p>
+
 ## Quick demo
 Run the web UI:
 ```bash
@@ -76,31 +104,6 @@ python -m src.cli unit_test generate <path> <project_path> [options]
 python -m src.cli unit_test generate src/utils /home/user/project -n add,subtract
 ```
 
-## Screenshots
-
-<div style="text-align:center;">
-
-  <div style="margin:40px 0;">
-    <img src="screenshots/docstring_ui.png" alt="Docstring UI" width="750" />
-    <p>
-      Screenshot of the Docstring Interface
-    </p>
-  </div>
-
-  <div style="margin:80px 0;">
-    <img src="screenshots/test_ui.png" alt="Test UI" width="750" />
-    <p>
-      Screenshot of the Test Interface
-    </p>
-  </div>
-
-</div>
-
-
-
-
-
-## Demo video for CLI usage
 
 
 ## Inspiration & Educational Context
