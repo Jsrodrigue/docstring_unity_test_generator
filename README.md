@@ -34,14 +34,13 @@ Automate docstring and unit test creation for Python projects using LLMs. Provid
 </p>
 
 ## Demo video for CLI usage
-Watch a short demostration in how to use the CLI
 
 <p align="center">
   <a href="https://youtu.be/4-6kulni4_Y" target="_blank">
-    <img src="https://img.youtube.com/vi/4-6kulni4_Y/maxresdefault.jpg" alt="Demo video for CLI usage" width="750" />
+    <img src="https://img.youtube.com/vi/4-6kulni4_Y/maxresdefault.jpg" alt="Demo video for CLI usage" width="450" />
   </a>
   <br/>
-  <strong>Click the image to watch the demo on YouTube</strong>
+  <strong>Click the image to watch a short demo of the CLI on YouTube</strong>
 </p>
 
 ## Quick demo
