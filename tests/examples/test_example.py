@@ -1,42 +1,28 @@
-from examples.example import add, greet, multiply
 import pytest
+from examples.example import greet, add, multiply, Rectangle
 
+def test_greet():
+    assert greet('Alice') == 'Hello, Alice!'
+    assert greet('Bob') == 'Hello, Bob!'
+    assert greet('') == 'Hello, !'
 
-def test_greet_basic():
-    assert greet("World") == "Hello, World!"
+def test_add():
+    assert add(1, 2) == 3
+    assert add(-1, 1) == 0
+    assert add(1.5, 2.5) == 4.0
+    assert add(0, 0) == 0
 
-
-def test_greet_empty_string():
-    assert greet("") == "Hello, !"
-
-
-def test_add_integers():
-    assert add(2, 3) == 5
-
-
-def test_add_floats():
-    assert add(2.5, 0.5) == 3.0
-
-
-def test_add_mixed():
-    assert add(1, 2.5) == 3.5
-
-
-def test_add_negative_numbers():
-    assert add(-1, -2) == -3
-
-
-def test_multiply_two_numbers_default_c():
+def test_multiply():
     assert multiply(2, 3) == 6
+    assert multiply(2, 3, 2) == 12
+    assert multiply(1, 0) == 0
+    assert multiply(5, 5) == 25
 
-
-def test_multiply_three_numbers():
-    assert multiply(2, 3, 4) == 24
-
-
-def test_multiply_with_zero():
-    assert multiply(0, 5) == 0
-
-
-def test_multiply_negative_and_float():
-    assert multiply(-2, 3.5) == -7.0
+def test_rectangle():
+    rect = Rectangle(3, 4)
+    assert rect.area() == 12
+    assert rect.perimeter() == 14
+    rect.scale(2)
+    assert rect.width == 6
+    assert rect.height == 8
+    assert rect.area() == 48

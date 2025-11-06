@@ -85,7 +85,7 @@ class BaseCodeGenerationAgent(BaseCodeAgent):
             model_name=model_name,
         )
 
-        self.agent.output_type = list[self.OutputModel]
+        self.agent.output_type = self.OutputModel
         self.project_path = project_path
 
         # Initialize indexer *only if* project_path is provided
@@ -187,34 +187,60 @@ class BaseCodeGenerationAgent(BaseCodeAgent):
     ##########################################################
     # Run generation
     ##########################################################
-    async def generate(self, items: List[CodeItem]) -> List:
+    ##########################################################
+    # Run generation
+    async def generate(self, items: List[CodeItem]):
         """
         Generates structured output based on the provided code items.
         
         Args:
-          items (List[CodeItem]): The code items to process.
+            items (List[CodeItem]): The code items to process.
         
         Returns:
-          List: A list of generated outputs, which may include structured code or data.
+            List[BaseModel]: A list of Pydantic objects (e.g., DocstringOutput or UnitTestOutput).
         """
         prompt = self._make_prompt(items)
 
+        def _parse_to_models(parsed):
+            """Convert JSON-like data into a list of Pydantic model instances."""
+            # Detecta automáticamente el tipo interno del modelo
+            try:
+                item_type = self.OutputModel.model_fields["items"].annotation.__args__[0]
+            except Exception:
+                print("⚠️ Could not infer item type from OutputModel, returning empty list")
+                return []
+
+            if isinstance(parsed, list):
+                return [item_type(**d) for d in parsed if isinstance(d, dict)]
+            if isinstance(parsed, dict) and "items" in parsed:
+                return [item_type(**d) for d in parsed["items"] if isinstance(d, dict)]
+            return []
+
         try:
             result = await self.run(prompt)
+
+            # Caso 1: modelo Pydantic con .items
+            if hasattr(result, "items"):
+                return result.items
+
+            # Caso 2: string JSON
+            if isinstance(result, str):
+                parsed = safe_json_loads(result)
+                return _parse_to_models(parsed)
+
+            # Caso 3: dict
+            if isinstance(result, dict):
+                return _parse_to_models(result)
+
+            print("⚠️ Unexpected result type:", type(result))
+            return []
+
         except Exception as e:
             print(f"⚠️ Error generating {self.__class__.__name__} output — using manual fallback")
             print("Details:", e)
+
+            # Fallback a texto y reparseo
             self.agent.output_type = str
             result_text = await self.run(prompt)
             parsed = safe_json_loads(result_text)
-            if not parsed:
-                return []
-            return [self.OutputModel(**d) for d in parsed]
-
-        if isinstance(result, str):
-            parsed = safe_json_loads(result)
-            if not parsed:
-                return []
-            return [self.OutputModel(**d) for d in parsed]
-
-        return result
+            return _parse_to_models(parsed)

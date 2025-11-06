@@ -15,3 +15,6 @@ class UnitTestOutput(BaseModel):
     test_code: str
     file_path: str
     imports: List[str] = []
+
+class UnitTestOutputList(BaseModel):
+  items: List[UnitTestOutput]

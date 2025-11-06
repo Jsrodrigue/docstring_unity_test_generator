@@ -29,11 +29,7 @@ def multiply(a, b, c=1):
     Multiply three numbers together, with the third number being optional and defaulting to 1.
     
     Args:
-      a (int or float): The first number.
-      b (int or float): The second number.
-      c (int or float, optional): The third number, default is 1.
-    Returns:
-      int or float: The product of the three numbers.
+      a (int or float): The fir
     """
     return a * b * c
 

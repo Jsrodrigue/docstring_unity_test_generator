@@ -1,4 +1,5 @@
 from pydantic import BaseModel
+from typing import List
 
 class DocstringOutput(BaseModel):
     """
@@ -14,5 +15,8 @@ class DocstringOutput(BaseModel):
     name: str
     docstring: str
     file_path: str
+
+class DocstringOutputList(BaseModel):
+  items: List[DocstringOutput]
 
   

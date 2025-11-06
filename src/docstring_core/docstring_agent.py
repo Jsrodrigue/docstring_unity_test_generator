@@ -1,4 +1,4 @@
-from src.docstring_core.docstring_models import DocstringOutput
+from src.docstring_core.docstring_models import DocstringOutputList
 from src.docstring_core.docstring_prompts import SYSTEM_PROMPT_DOCSTRINGS, PROMPT_TEMPLATE_DOCSTRINGS
 from src.core_base.agents.base_agents import BaseCodeGenerationAgent
 from pathlib import Path
@@ -16,7 +16,7 @@ class DocstringAgent(BaseCodeGenerationAgent):
     """
     SYSTEM_PROMPT = SYSTEM_PROMPT_DOCSTRINGS
     PROMPT_TEMPLATE = PROMPT_TEMPLATE_DOCSTRINGS
-    OutputModel = DocstringOutput
+    OutputModel = DocstringOutputList
 
     def __init__(self, model_name: str, project_path: Path = None):
         """

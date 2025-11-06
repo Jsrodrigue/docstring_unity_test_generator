@@ -13,22 +13,31 @@ Task:
 - Import the original function by extracting from the given path.
 
 ⚠️ Important constraints:
-  - Don't include innecesary imports.
+  - Don't include unnecessary imports.
   - Do NOT use sys.path manipulations (e.g. `sys.path.append`, `os.chdir`, etc.).
   - Do NOT use relative path hacks with `Path(__file__)`.
-  - Use the provided project path and file path to infer the correct import statements.
+  - Use the provided project path and file path to infer correct import statements.
 
 Output format:
-- Return a JSON array of objects, each with:
-  - "name": The name of the original function to be tested
-  - "file_path": path of the file containing the function
-  - "test_code": full pytest code as a string without imports
-  - "imports": list of normalized import statements (no duplicates, all required)
+Return a **JSON object** matching this Pydantic model:
+{
+  "items": [
+    {
+      "name": "string",          # function name
+      "file_path": "string",     # path of the file containing the function
+      "test_code": "string",     # pytest code body (without imports)
+      "imports": ["string", ...] # list of import statements required
+    }
+  ]
+}
 
-- Do not include markdown, triple quotes, explanations, or comments.
-- Ensure the code is valid Python and directly runnable with pytest.
-- Include all the needed imports only in the imports list
+Constraints:
+- The output must be valid JSON and parsable as `UnitTestOutputList`.
+- Do not include markdown, triple quotes, or comments.
+- The code must be valid Python and directly runnable with pytest.
+- The "imports" list must contain all imports needed for the test, no duplicates.
 """
+
 
 PROMPT_TEMPLATE_TESTS = """
 Analyze the following Python functions.
