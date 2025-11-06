@@ -30,7 +30,7 @@ class UnitTestFixerAgent(BaseCodeAgent):
                     - Remove innecesary imports.
                     - Do NOT use sys.path manipulations (e.g. `sys.path.append`, `os.chdir`, etc.).
                     - Do NOT use relative path hacks with `Path(__file__)`.
-                    - All imports must be written as clean, absolute imports starting from the project root.
+                    - All imports must be written as clean runable for the prject path (DON'T include the project path in the imports).
                     - Use the provided project path and file path to infer the correct import statements.
                     - Do NOT remove or rename any test functions.
                     - Return only the corrected Python code, fully runnable with pytest.

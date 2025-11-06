@@ -12,6 +12,12 @@ Task:
 - If multiple functions require the same import, only include it once.
 - Import the original function by extracting from the given path.
 
+⚠️ Important constraints:
+  - Don't include innecesary imports.
+  - Do NOT use sys.path manipulations (e.g. `sys.path.append`, `os.chdir`, etc.).
+  - Do NOT use relative path hacks with `Path(__file__)`.
+  - Use the provided project path and file path to infer the correct import statements.
+
 Output format:
 - Return a JSON array of objects, each with:
   - "name": The name of the original function to be tested

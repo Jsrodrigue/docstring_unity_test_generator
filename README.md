@@ -4,7 +4,6 @@
 Automate docstring and unit test creation for Python projects using LLMs. Provides both a CLI and a web UI so teams can quickly increase documentation quality and test coverage with minimal manual work.
 
 
-## Summary
 Generates docstrings and pytest tests from your source code using configurable LLMs. Try the web UI or run it from the CLI.
 
 ## Why it matters
@@ -16,17 +15,60 @@ Generates docstrings and pytest tests from your source code using configurable L
 Run the web UI:
 ```bash
 python app_gradio.py
-# Open http://localhost:7860
 ```
 
 Generate docstrings from the CLI:
 ```bash
-python -m src.cli docstring generate ./src --model gpt-4o-mini
+python -m src.cli docstring generate <folder_path> 
 ```
 
 Generate unit tests:
 ```bash
-python -m src.cli unit_test generate ./src --project ./ --model gpt-4o
+python -m src.cli unit_test generate <folder_path> <project_path>
+```
+## CLI Usage
+Run tools as Python modules:
+---
+
+###  Docstring Generator
+
+```python
+python -m src.cli docstring generate <path> [options]
+```
+
+
+**Options**
+| Option | Description |
+|---------|--------------|
+| `<path>` | File or folder to scan. |
+| `--model, -m` | Model to use (default: `gpt-4o-mini`). |
+| `--names, -n` | Comma-separated list of names to process. |
+| `--project, -p` | Root path of the project for indexing. |
+
+**Example**
+```python
+python -m src.cli docstring generate src/utils -m openai/gpt-oss-120b
+```
+
+
+---
+
+### Unit Test Generator
+```python 
+python -m src.cli unit_test generate <path> <project_path> [options]
+```
+
+**Options**
+| Option | Description |
+|---------|--------------|
+| `<path>` | File or folder to analyze. |
+| `<project_path>` | Root path of the project. |
+| `--model, -m` | Model to use (default: `openai/gpt-oss-120b`). |
+| `--names, -n` | Specific function/class names. |
+
+**Example**
+```python 
+python -m src.cli unit_test generate src/utils /home/user/project -n add,subtract
 ```
 
 ## Screenshots
@@ -59,12 +101,7 @@ python -m venv .venv
 pip install -r requirements.txt
 ```
 
-Optional (install editable package from source):
-```bash
-pip install -e .
-```
-
-If you prefer the `pyproject.toml` workflow, you can also use `poetry` or `uv` — but providing `requirements.txt` is recommended for quick testing.
+If you prefer the `pyproject.toml` workflow, you can also use `uv` — but providing `requirements.txt` is recommended for quick testing.
 
 ### API Keys & Supported Models
 
@@ -83,46 +120,16 @@ Supported models:
 
 Select models via `--model` flag in CLI or environment variables. 
 
-The selection of models can be easly customizable by modifing the `constants.py` file.
+The selection of models can be easily customizable by modifing the `constants.py` file.
 
-## Minimal example (input → output)
-
-Input file (before):
-```python
-def add(a, b):
-   return a + b
-```
-
-Suggested docstring (after):
-```python
-def add(a, b):
-    """
-    Return the sum of two numbers.
-    
-    Args:
-      a (int or float): The first number.
-      b (int or float): The second number.
-    Returns:
-      int or float: The sum of the two numbers.
-    """
-    return a + b
-```
-
-Generated pytest (example):
-```python
-def test_add():
-   assert add(1, 2) == 3
-```
 
 ## How it works (high level)
 1. Scanner: parses the codebase and finds functions/classes.
 2. LLM agent: generates docstrings or test code using prompts. 
-3. Generator: formats outputs (Google/NumPy style) and writes mirrored files under `tests/`.
-4. Review: user can preview and accept changes in docstring via the Gradio UI.
-
+3. Writer: writes docstrings into each source file and generates mirrored test files under tests/.
 ## Agents & Pipelines
 
-This project uses a modular agent architecture where agents process Python files one at a time and return structured items (`DocstringOutput` and `UnitTestOutput` objects) containing the generated content and metadata.
+This project uses a modular agent architecture where agents process Python files one at a time and return structured items (list of `DocstringOutput` and `UnitTestOutput` objects) containing the generated content and metadata.
 
 ### Agent Types & Responsibilities
 
